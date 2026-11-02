@@ -1,0 +1,87 @@
+# Install this workflow in a PRIVATE state repository, not the public code repository.
+name: Collect prices
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Collector state profile
+        type: choice
+        options: [sample, production]
+        default: sample
+      mode:
+        description: Probe only; update publishes; resume continues; restart abandons unfinished progress and publishes a new round
+        type: choice
+        options: [probe, update, resume, restart]
+        default: probe
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aibibi-collector
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PROFILE: ${{ inputs.profile }}
+      MODE: ${{ inputs.mode }}
+    steps:
+      - name: Check out private encrypted state
+        uses: actions/checkout@v4
+        with:
+          path: state
+      - name: Check out reviewed collector code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.APP_REPOSITORY }}
+          ref: ${{ vars.APP_REF }}
+          path: app
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/cloudflare/package-lock.json
+      - name: Install dependencies
+        run: |
+          python3 -m pip install -r app/ops/github-actions/requirements.txt
+          npm ci --prefix app/cloudflare
+      - name: Restore private state
+        id: restore
+        working-directory: app
+        env:
+          COLLECTOR_STATE_KEY: ${{ secrets.COLLECTOR_STATE_KEY }}
+        run: python3 -m collector.actions_state restore --archive "../state/profiles/$PROFILE.bin" --directory .local/data --profile "$PROFILE"
+      - name: Collect and optionally publish
+        working-directory: app
+        timeout-minutes: 100
+        env:
+          BIJIA_URL: ${{ vars.COLLECTOR_URL }}
+          BIJIA_INGEST_TOKEN: ${{ secrets.BIJIA_INGEST_TOKEN }}
+        run: python3 -m collector.actions_run --mode "$MODE"
+      - name: Encrypt state after success or failure
+        id: seal
+        if: always() && steps.restore.outputs.restored == 'true'
+        working-directory: app
+        env:
+          COLLECTOR_STATE_KEY: ${{ secrets.COLLECTOR_STATE_KEY }}
+        run: python3 -m collector.actions_state seal --archive "../state/profiles/$PROFILE.bin" --directory .local/data --profile "$PROFILE"
+      - name: Persist encrypted state
+        if: always() && steps.seal.outcome == 'success'
+        working-directory: state
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- "profiles/$PROFILE.bin"
+          if ! git diff --cached --quiet; then
+            git commit -m "Save $PROFILE collector state (run $GITHUB_RUN_ID)"
+            git push origin HEAD:main
+          fi

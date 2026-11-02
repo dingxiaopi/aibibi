@@ -36,8 +36,9 @@ const config = JSON.parse(readFileSync(path, "utf8"));
 config.exclusions ||= {};
 let count = 0;
 for (const r of rejected) {
+  // A sample profile owns only its selected stores; unrelated moderation stays on the server.
+  if (!config.shops.some((s) => s.id === r.shop_id)) continue;
   if (
-    !config.shops.some((s) => s.id === r.shop_id) ||
     !/^(G\d+|[WC][A-Za-z0-9_]+|N\d+(?:V\d+)?)$/.test(r.source_id) ||
     !Number.isFinite(Date.parse(r.data_at))
   )

@@ -45,9 +45,10 @@ scripts. Direct Vite/Wrangler commands skip parts of this preparation.
 
 ## Scheduling
 
-The initial release runs collection manually. The update command has a process
-lock and durable checkpoints; batch transfers have hashes, server receipts and
-retry support. An external scheduler can invoke the same command on one host,
-but no cron, launchd, cloud trigger or live-collection workflow is installed.
+Collection runs manually on the operator's machine or through the optional
+[private Actions workflow](github-actions.md). Its state is authenticated-encrypted
+in a separate private repository. The update command has durable checkpoints;
+batch transfers have hashes, server receipts and retry support. No cron, launchd
+or cloud schedule is installed. The public repository's Quality workflow only tests code.
 Multiple writers sharing one instance are not supported; multi-node leases and
 task distribution are future work.

@@ -15,6 +15,22 @@ class DevVarsTests(unittest.TestCase):
 
 
 class ResumeTests(unittest.TestCase):
+    def test_low_success_ratio_stops_before_export_and_push(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            snapshot, seeds = root / 'snapshot.json', root / 'seeds.json'
+            snapshot.write_text(json.dumps({'stats': {'shops': 2, 'shops_ok': 1},
+                'shops': [{'id': 'S1', 'collection_status': 'ok'}, {'id': 'S2', 'collection_status': 'failed'}], 'changes': []}))
+            seeds.write_text(json.dumps({'shops': [{'id': 'S1'}, {'id': 'S2'}]}))
+            with patch.object(update, 'STATE_DIR', root), patch.object(update, 'SNAPSHOT', snapshot), \
+                    patch.object(update, 'SEEDS', seeds), patch.object(update, 'run_logged', return_value=(0, 'collected')), \
+                    patch.object(update, 'node') as node, \
+                    patch('sys.argv', ['update', '--dry-run', '--min-success-ratio', '0.8']):
+                with self.assertRaisesRegex(SystemExit, '成功率低于门槛'):
+                    update.main()
+                node.assert_not_called()
+                self.assertEqual(json.loads((root / 'update-state.json').read_text())['phase'], 'collected')
+
     def test_resume_classification_does_not_recollect_and_exports_reviewed_snapshot(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

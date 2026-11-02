@@ -12,13 +12,14 @@ The push retries each batch with backoff; --resume continues durable local progr
 """
 import argparse
 import json
+import math
 import os
 import subprocess
 import sys
 import time
 from urllib.request import Request, urlopen, build_opener, ProxyHandler
 
-from collector.paths import SNAPSHOT, STATE_DIR, BUNDLE
+from collector.paths import SEEDS, SNAPSHOT, STATE_DIR, BUNDLE
 from collector.collect import ROOT, atomic_json, now
 from collector.checkpoint import digest
 from collector.paths import TARGET_URL
@@ -96,10 +97,14 @@ def main():
     parser.add_argument('--url', default=PRODUCTION)
     parser.add_argument('--proxy', help='explicit proxy for this run; credentials are never logged')
     parser.add_argument('--no-ai', action='store_true', help='skip initial shop classification this run')
+    parser.add_argument('--min-success-ratio', type=float, default=0,
+                        help='stop before exporting/pushing when fewer active sources succeed (0..1)')
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--resume', action='store_true', help='resume collection or the exact exported push plan')
     mode.add_argument('--restart', action='store_true', help='start a new collection, replacing unfinished local progress')
     args = parser.parse_args()
+    if not math.isfinite(args.min_success_ratio) or not 0 <= args.min_success_ratio <= 1:
+        parser.error('--min-success-ratio must be between 0 and 1')
     started = time.monotonic()
     args.url = args.url.rstrip('/')
     STATE_DIR.mkdir(parents=True, exist_ok=True)
@@ -180,6 +185,15 @@ def main():
                         raise SystemExit(f'采集退出（{code}），修复后用 --resume 继续')
                     print(f'本次采集用时 {(time.monotonic() - t) / 60:.1f} 分钟', file=sys.stderr)
                 phase('collected', snapshot_digest=digest(json.loads(SNAPSHOT.read_text())))
+            if args.min_success_ratio:
+                config = json.loads(SEEDS.read_text())
+                active = {s['id'] for s in config['shops'] if s.get('enabled') is not False
+                          and not s.get('disabled_at') and not s.get('collection_paused')}
+                snapshot = json.loads(SNAPSHOT.read_text())
+                succeeded = sum(s.get('collection_status') == 'ok' and s['id'] in active
+                                for s in snapshot.get('shops', []))
+                if not active or succeeded / len(active) < args.min_success_ratio:
+                    raise SystemExit('采集成功率低于门槛，停止导出与推送；保留快照和进度以便诊断')
             if not args.dry_run and not args.no_ai and state.get('phase') != 'classified':
                 step('首次分类：仅处理尚未完成首次分类的店铺，已分类店铺不调用 AI')
                 phase('classifying')
