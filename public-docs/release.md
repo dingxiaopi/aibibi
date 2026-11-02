@@ -23,11 +23,11 @@ python3 scripts/export_public.py --output /absolute/path/aibibi-public
 例如，已验证的源码目录可以这样打包；应从导出目录的父目录执行：
 
 ```sh
-python3 -m zipfile -c aibibi-v0.2.0-source.zip aibibi-v0.2.0
-shasum -a 256 aibibi-v0.2.0-source.zip > SHA256SUMS.txt
+python3 -m zipfile -c aibibi-v0.3.0-source.zip aibibi-v0.3.0
+shasum -a 256 aibibi-v0.3.0-source.zip > SHA256SUMS.txt
 ```
 
 发布说明需要交代具体变更、验证结果、升级步骤和实际限制。源码版本发布与线上数据更新、Worker 部署分别进行。
 已发布标签和附件不覆盖修改；修复内容通过后续版本发布。
 
-当前版本说明：[v0.2.0](releases/v0.2.0.md)。
+当前版本说明：[v0.3.0](releases/v0.3.0.md)。历史版本：[v0.2.0](releases/v0.2.0.md)。
