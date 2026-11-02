@@ -30,6 +30,7 @@
 | `APP_REPOSITORY` | 自己审核过的公开代码仓库，例如 `owner/aibibi` |
 | `APP_REF` | 对应的完整提交 SHA，避免未审核代码自动获得运行凭据 |
 | `COLLECTOR_URL` | 自己的 HTTPS Worker origin，必须与加密 profile 的目标一致 |
+| `COLLECTOR_RUNNER_LABELS` | 可选 JSON 数组；默认 `["ubuntu-latest"]`。专用自托管节点可设为 `["self-hosted","aibibi-collector"]` |
 
 配置私有仓库 Secrets：
 
@@ -77,6 +78,11 @@ python3.11 -m collector.actions_state prepare \
 
 第一次先 sample + probe，再 sample + update；确认 runner 的原店访问能力和推送结果后，
 再运行 production + update。遇到验证码、登录墙、WAF 或源站限制时，不绕过。
+
+托管 runner 的网络访问能力必须实际验证；本机能读取的来源，不保证 GitHub 的机器也能读取。
+例如 2026-11-02 的验证中，wzyp 在托管 runner 返回验证页，而同一来源在原本机可以正常读取。
+这种情况需要使用能正常访问原店的专用采集节点，或明确限定托管 runner 的采集范围，不能降低门槛后盲目推送。
+自托管 runner 应注册在私有运行仓库，使用专用标签，保持工作流仅手动触发并固定采集代码提交。
 
 ## 失败与状态
 
