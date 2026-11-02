@@ -1,5 +1,7 @@
 # Deployment
 
+首次安装可先按[中文完整教程](first-quote.md)跑通本地真实报价，再使用本页部署自己的线上资源。
+
 The website runs on Cloudflare Workers with D1 and bundled static assets.
 Collection runs on your own macOS/Linux computer or server, or through the optional
 [private GitHub Actions workflow](github-actions.md). No Supabase, queue,
