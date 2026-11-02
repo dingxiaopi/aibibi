@@ -1,0 +1,2 @@
+# Optional dependency for encrypted, persistent Actions state (Python 3.11).
+cryptography==50.0.2

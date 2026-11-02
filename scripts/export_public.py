@@ -41,6 +41,8 @@ def included(path):
         return path.suffix == '.py'
     if top == 'scripts':
         return name == 'scripts/export_public.py'
+    if top == 'ops':
+        return name in {'ops/github-actions/collect.yml', 'ops/github-actions/requirements.txt'}
     if top == 'public-docs':
         return path.suffix == '.md' or name in {'public-docs/images/demo-desktop.png', 'public-docs/images/demo-mobile.png'}
     if top == 'cloudflare':

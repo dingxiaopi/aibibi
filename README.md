@@ -57,6 +57,7 @@ npm run demo
 ```
 
 数据更新与代码部署独立。采集默认手动运行，开源仓库不安装定时任务。
+也可在自己的私有仓库[用 GitHub Actions 手动采集](public-docs/github-actions.md)，加密保存状态，无需本机持续在线。
 
 ## 自己部署
 
@@ -86,6 +87,7 @@ npm run build
 - [实例配置](public-docs/configuration.md)
 - [部署与演示](public-docs/deployment.md)
 - [采集与适配器贡献](public-docs/collectors.md)
+- [GitHub Actions 采集](public-docs/github-actions.md)
 - [常见问题与反馈](public-docs/troubleshooting.md)
 - [首次公开发布](public-docs/release.md)
 - [贡献指南](CONTRIBUTING.md) · [安全反馈](SECURITY.md)

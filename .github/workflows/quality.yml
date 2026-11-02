@@ -26,7 +26,9 @@ jobs:
           cache: npm
           cache-dependency-path: cloudflare/package-lock.json
       - name: Python tests with fixed fixtures
-        run: python3 -m unittest discover -s tests
+        run: |
+          python3 -m pip install -r ops/github-actions/requirements.txt
+          python3 -m unittest discover -s tests
       - name: Install frontend and Worker dependencies
         working-directory: cloudflare
         run: npm ci
