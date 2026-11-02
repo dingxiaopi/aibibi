@@ -150,6 +150,32 @@ def retire_unlisted(config, snapshot):
         config.setdefault('exclusions', {}).update(retired)
     return retired
 
+def retained_retirements(config, previous):
+    """Keep dated retirement observations until every destination has received them.
+
+    A probe can retire a monitor before any push. Dropping its observation on the
+    next update would leave the server's older price active. Never recheck the
+    retired product or advance its original observation/confirmation timestamps.
+    """
+    shop_ids = {s['id'] for s in config['shops']}
+    retained = []
+    for quote in previous.get('quotes', []):
+        exclusion = config.get('exclusions', {}).get(quote['id'], {})
+        mapping = (config['mappings'].get(quote['id']) or
+                   config['mappings'].get(quote.get('source_goods_id')))
+        if (mapping and mapping.get('shop_id') == quote.get('shop_id') and
+                mapping.get('sku') == quote.get('sku') and
+                quote.get('collection_status') == 'not_listed' and
+                quote.get('listing_status') == 'not_listed' and
+                quote.get('shop_id') in shop_ids and
+                exclusion.get('shop_id') == quote['shop_id'] and
+                exclusion.get('source_goods_id') == quote.get('source_goods_id') and
+                exclusion.get('item_url') == quote.get('item_url') and
+                exclusion.get('confirmed_at') and
+                exclusion['confirmed_at'] == quote.get('attempted_at')):
+            retained.append(dict(quote))
+    return retained
+
 def collect(config, previous, fetch=api, pause=time.sleep, staged_storefront=None, progress=None, capture_dir=None, checkpoint=None):
     if len(config['shops']) > min(config.get('shop_limit', SHOP_CAPACITY), SHOP_CAPACITY):
         raise ValueError('店铺数量超过配置上限')
@@ -159,7 +185,7 @@ def collect(config, previous, fetch=api, pause=time.sleep, staged_storefront=Non
     old_quotes = {q['id']: q for q in previous.get('quotes', [])
                   if q['id'] not in config.get('exclusions', {})}
     old_shops = {s['id']: s for s in previous.get('shops', [])}
-    quotes, shops, reviews, logs = [], [], [], []
+    quotes, shops, reviews, logs = retained_retirements(config, previous), [], [], []
     if checkpoint and checkpoint.state:
         state = checkpoint.state
         at = state['run_started_at']
