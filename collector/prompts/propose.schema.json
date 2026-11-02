@@ -1,0 +1,14 @@
+{"type":"object","additionalProperties":false,"required":["proposals"],
+ "properties":{"proposals":{"type":"array","items":{"type":"object","additionalProperties":false,
+  "required":["id","category","brand","family","kind","name","spec","channel","members","rationale"],
+  "properties":{
+   "id":{"type":"string"},
+   "category":{"type":"string","enum":["gpt","claude","gemini","grok","cursor","other"]},
+   "brand":{"type":"string"},
+   "family":{"type":"string"},
+   "kind":{"type":"string"},
+   "name":{"type":"string"},
+   "spec":{"type":"string"},
+   "channel":{"type":"string"},
+   "members":{"type":"array","items":{"type":"integer"}},
+   "rationale":{"type":"string"}}}}}}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 64" fill="none">
+  <title>AI比比 · 并排双 b</title>
+  <g stroke="#38bde6" stroke-width="8" stroke-linecap="round">
+    <path d="M13 9v31"/>
+    <circle cx="26" cy="40" r="13"/>
+  </g>
+  <g stroke="#6198ff" stroke-width="8" stroke-linecap="round">
+    <path d="M60 9v31"/>
+    <circle cx="73" cy="40" r="13"/>
+  </g>
+</svg>

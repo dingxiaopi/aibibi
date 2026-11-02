@@ -1,0 +1,12 @@
+{"type":"object","additionalProperties":false,"required":["results"],
+ "properties":{"results":{"type":"array","items":{"type":"object","additionalProperties":false,
+  "required":["key","decision","sku","channel","warranty","restriction","spec_evidence","reason"],
+  "properties":{
+   "key":{"type":"string"},
+   "decision":{"type":"string","enum":["approve","reject"]},
+   "sku":{"type":["string","null"]},
+   "channel":{"type":"string"},
+   "warranty":{"type":"string"},
+   "restriction":{"type":"string"},
+   "spec_evidence":{"type":"string"},
+   "reason":{"type":"string"}}}}}}

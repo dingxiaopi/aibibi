@@ -1,0 +1,10 @@
+{"type":"object","additionalProperties":false,"required":["results"],
+ "properties":{"results":{"type":"array","items":{"type":"object","additionalProperties":false,
+  "required":["key","decision","sku","confidence","reason","new_spec_hint"],
+  "properties":{
+   "key":{"type":"string"},
+   "decision":{"type":"string","enum":["match","irrelevant","new_spec"]},
+   "sku":{"type":["string","null"]},
+   "confidence":{"type":"string","enum":["high","medium","low"]},
+   "reason":{"type":"string"},
+   "new_spec_hint":{"type":["string","null"]}}}}}}

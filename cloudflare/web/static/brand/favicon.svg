@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+  <title>AI比比</title>
+  <rect width="96" height="96" rx="22" fill="#0e1723"/>
+  <g transform="translate(12 25) scale(.72)">
+    <g stroke="#38bde6" stroke-width="8" stroke-linecap="round">
+      <path d="M13 9v31"/>
+      <circle cx="26" cy="40" r="13"/>
+    </g>
+    <g stroke="#6198ff" stroke-width="8" stroke-linecap="round">
+      <path d="M60 9v31"/>
+      <circle cx="73" cy="40" r="13"/>
+    </g>
+  </g>
+</svg>

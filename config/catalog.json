@@ -1,0 +1,1200 @@
+{
+  "products": [
+    {
+      "id": "plus-phi",
+      "category": "gpt",
+      "name": "Plus 月付直充",
+      "spec": "30 天 · 菲区卡充 · 现有账号",
+      "channel": "菲律宾卡付（商家标注）",
+      "logo": "◎"
+    },
+    {
+      "id": "plus-ios",
+      "category": "gpt",
+      "name": "Plus 月付直充 · iOS",
+      "spec": "30 天 · iOS 美区 · 现有账号",
+      "channel": "iOS 美区（商家标注）",
+      "logo": "◎"
+    },
+    {
+      "id": "pro100-ios",
+      "category": "gpt",
+      "name": "Pro 100美元档 / 5X",
+      "spec": "30 天 · iOS 美区 · 商家标注档位",
+      "channel": "iOS 美区（商家标注）",
+      "logo": "◎"
+    },
+    {
+      "id": "go-phi",
+      "category": "gpt",
+      "name": "Go 月付直充",
+      "spec": "30 天 · 菲区卡充 · 现有账号",
+      "channel": "菲律宾卡付（商家标注）",
+      "logo": "◎"
+    },
+    {
+      "id": "claude-ios",
+      "category": "claude",
+      "name": "Claude Pro 月付直充",
+      "spec": "30 天 · iOS 渠道 · 现有账号",
+      "channel": "iOS 渠道（商家标注）",
+      "logo": "✳"
+    },
+    {
+      "id": "grok-ios",
+      "category": "grok",
+      "name": "SuperGrok 月付直充",
+      "spec": "30 天 · iOS 渠道 · 现有账号",
+      "channel": "iOS 渠道（商家标注）",
+      "logo": "𝕏"
+    },
+    {
+      "id": "grok-quarter-ios",
+      "category": "grok",
+      "name": "SuperGrok 季付直充",
+      "spec": "90 天 · iOS 渠道 · 现有账号",
+      "channel": "iOS 渠道（商家标注）",
+      "logo": "𝕏"
+    },
+    {
+      "id": "plus-card",
+      "category": "gpt",
+      "name": "Plus 月付直充 · 官网卡付",
+      "spec": "30 天 · 官网卡付 · 地区未标注",
+      "channel": "官网银行卡代付（地区未标注）",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "直充"
+    },
+    {
+      "id": "go-card",
+      "category": "gpt",
+      "name": "Go 月付直充 · 官网卡付",
+      "spec": "1 个月 · 官网卡付 · 地区未标注",
+      "channel": "官网银行卡代付（地区未标注）",
+      "brand": "gpt",
+      "family": "Go",
+      "kind": "直充"
+    },
+    {
+      "id": "pro100-card",
+      "category": "gpt",
+      "name": "Pro 100美元档 · 官网卡付",
+      "spec": "30 天 · 官网卡付 · 地区未标注",
+      "channel": "官网银行卡代付（地区未标注）",
+      "brand": "gpt",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "pro100-chile",
+      "category": "gpt",
+      "name": "Pro 100美元档 · 智利",
+      "spec": "30 天 · 智利卡充 · 现有账号",
+      "channel": "智利卡付（商家标注）",
+      "brand": "gpt",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "pro200-phi",
+      "category": "gpt",
+      "name": "Pro 200美元档 · 菲区",
+      "spec": "30 天 · 菲区卡充 · 现有账号",
+      "channel": "菲律宾卡付（商家标注）",
+      "brand": "gpt",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "pro200-phi-renewal",
+      "category": "gpt",
+      "name": "Pro 200美元档 · 菲区续费",
+      "spec": "30 天 · 菲区续费 · 原订阅条件限制",
+      "channel": "菲律宾卡付续费（商家标注）",
+      "brand": "gpt",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "pro200-card",
+      "category": "gpt",
+      "name": "Pro 200美元档 · 官网卡付",
+      "spec": "30 天 · 官网卡付 · 地区未标注",
+      "channel": "官网银行卡代付（地区未标注）",
+      "brand": "gpt",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "pro200-ios",
+      "category": "gpt",
+      "name": "Pro 200美元档 · iOS",
+      "spec": "30 天 · iOS 美区 · 现有账号",
+      "channel": "iOS 美区（商家标注）",
+      "brand": "gpt",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "pro500-ios",
+      "category": "gpt",
+      "name": "Pro 500美元档 · iOS",
+      "spec": "30 天 · iOS 美区 · 现有账号",
+      "channel": "iOS 美区（商家标注）",
+      "brand": "gpt",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "pro500-phi",
+      "category": "gpt",
+      "name": "Pro 500美元档 · 菲区",
+      "spec": "30 天 · 菲区卡充 · 现有账号",
+      "channel": "菲律宾卡付（商家标注）",
+      "brand": "gpt",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "plus-year-ios-365",
+      "category": "gpt",
+      "name": "Plus 年付直充 · 365天",
+      "spec": "365 天 · iOS 美区 · 现有账号",
+      "channel": "iOS 美区（商家标注）",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "直充"
+    },
+    {
+      "id": "plus-year-ios-360",
+      "category": "gpt",
+      "name": "Plus 年付直充 · 360天",
+      "spec": "360 天 · iOS 美区 · 现有账号",
+      "channel": "iOS 美区（商家标注）",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "直充"
+    },
+    {
+      "id": "plus-mirror-month",
+      "category": "gpt",
+      "name": "Plus 网页镜像 · 月卡",
+      "spec": "1 个月 · 第三方镜像 · 非官方账号订阅",
+      "channel": "第三方网页镜像",
+      "brand": "gpt",
+      "family": "镜像服务",
+      "kind": "镜像"
+    },
+    {
+      "id": "plus-mirror-quarter",
+      "category": "gpt",
+      "name": "Plus 网页镜像 · 季卡",
+      "spec": "3 个月 · 第三方镜像 · 非官方账号订阅",
+      "channel": "第三方网页镜像",
+      "brand": "gpt",
+      "family": "镜像服务",
+      "kind": "镜像"
+    },
+    {
+      "id": "plus-account-phi-month",
+      "category": "gpt",
+      "name": "Plus 月付成品号 · 菲区",
+      "spec": "1 个月 · 菲区实付 · 独享成品号",
+      "channel": "菲区实付成品账号",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "成品号"
+    },
+    {
+      "id": "plus-account-vn-month",
+      "category": "gpt",
+      "name": "Plus 月付成品号 · 越南",
+      "spec": "1 个月 · 越南实卡 · 独享成品号",
+      "channel": "越南实卡成品账号",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "成品号"
+    },
+    {
+      "id": "plus-account-jp-month",
+      "category": "gpt",
+      "name": "Plus 月付成品号 · 日本",
+      "spec": "1 个月 · 日本渠道 · 独享成品号",
+      "channel": "日本渠道成品账号",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "成品号"
+    },
+    {
+      "id": "claude-max5-ios",
+      "category": "claude",
+      "name": "Claude Max 5X · iOS直充",
+      "spec": "1 个月 · iOS渠道 · 现有账号",
+      "channel": "iOS 渠道（商家标注）",
+      "brand": "claude",
+      "family": "Max 5X",
+      "kind": "直充"
+    },
+    {
+      "id": "claude-max5-us-card",
+      "category": "claude",
+      "name": "Claude Max 5X · 美区卡充",
+      "spec": "1 个月 · 美区官网卡付 · 现有账号",
+      "channel": "美区官网卡付（商家标注）",
+      "brand": "claude",
+      "family": "Max 5X",
+      "kind": "直充"
+    },
+    {
+      "id": "claude-max20-card",
+      "category": "claude",
+      "name": "Claude Max 20X · 卡充",
+      "spec": "1 个月 · 卡付渠道 · 现有账号",
+      "channel": "官网卡付（地区未标注）",
+      "brand": "claude",
+      "family": "Max 20X",
+      "kind": "直充"
+    },
+    {
+      "id": "gemini-pro-18-link",
+      "category": "gemini",
+      "name": "Gemini Pro · 18个月激活链接",
+      "spec": "活动标注18个月 · 无需绑卡 · 仅链接交付",
+      "channel": "活动激活链接（无需绑卡）",
+      "brand": "gemini",
+      "family": "激活链接",
+      "kind": "激活链接"
+    },
+    {
+      "id": "tavily-key-1000",
+      "category": "other",
+      "name": "Tavily API · 月1000次密钥",
+      "spec": "独享 API Key · 每月1000次 · 按月重置",
+      "channel": "商家交付独享API密钥",
+      "brand": "tavily",
+      "family": "Tavily",
+      "kind": "API密钥"
+    },
+    {
+      "id": "mail-outlook-token",
+      "category": "other",
+      "name": "Outlook 邮箱 · 令牌号",
+      "spec": "单个邮箱 · 账号密码及OAuth令牌 · Graph/IMAP",
+      "channel": "邮箱成品号",
+      "brand": "outlook",
+      "family": "邮箱",
+      "kind": "成品号"
+    },
+    {
+      "id": "mail-hotmail-token",
+      "category": "other",
+      "name": "Hotmail 邮箱 · 令牌号",
+      "spec": "单个邮箱 · 账号密码及OAuth令牌 · Graph/IMAP",
+      "channel": "邮箱成品号",
+      "brand": "outlook",
+      "family": "邮箱",
+      "kind": "成品号"
+    },
+    {
+      "id": "mail-icloud-3day",
+      "category": "other",
+      "name": "iCloud 隐私邮箱 · 3天",
+      "spec": "3 天 · 隐私收件邮箱 · API/网页取件",
+      "channel": "隐私收件邮箱",
+      "brand": "apple",
+      "family": "邮箱",
+      "kind": "收件服务"
+    },
+    {
+      "id": "codex-credits-250",
+      "category": "gpt",
+      "name": "Codex 使用额度 · 250点",
+      "spec": "250 点 · 直充现有账号 · 非API余额",
+      "channel": "账号使用额度充值",
+      "brand": "gpt",
+      "family": "Codex",
+      "kind": "额度充值"
+    },
+    {
+      "id": "codex-credits-500",
+      "category": "gpt",
+      "name": "Codex 使用额度 · 500点",
+      "spec": "500 点 · 直充现有账号 · 非API余额",
+      "channel": "账号使用额度充值",
+      "brand": "gpt",
+      "family": "Codex",
+      "kind": "额度充值"
+    },
+    {
+      "id": "codex-credits-1000",
+      "category": "gpt",
+      "name": "Codex 使用额度 · 1000点",
+      "spec": "1000 点 · 直充现有账号 · 非API余额",
+      "channel": "账号使用额度充值",
+      "brand": "gpt",
+      "family": "Codex",
+      "kind": "额度充值"
+    },
+    {
+      "id": "codex-credits-2500",
+      "category": "gpt",
+      "name": "Codex 使用额度 · 2500点",
+      "spec": "2500 点 · 直充现有账号 · 非API余额",
+      "channel": "账号使用额度充值",
+      "brand": "gpt",
+      "family": "Codex",
+      "kind": "额度充值"
+    },
+    {
+      "id": "pro100-phi",
+      "category": "gpt",
+      "name": "Pro 100美元档 · 菲区",
+      "spec": "30 天 · 菲区卡充 · 现有账号",
+      "channel": "菲律宾卡付（商家标注）",
+      "brand": "gpt",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "cursor-ultra-account-month",
+      "category": "cursor",
+      "name": "Cursor Ultra 月卡 · 成品号",
+      "spec": "1 个月 · Ultra套餐 · 独享成品账号",
+      "channel": "商家交付会员成品账号",
+      "brand": "cursor",
+      "family": "Ultra",
+      "kind": "成品号"
+    },
+    {
+      "id": "cursor-plugin-day",
+      "category": "cursor",
+      "name": "Cursor 插件服务 · 日卡",
+      "spec": "1 天 · 第三方插件额度 · 非官方会员订阅",
+      "channel": "第三方插件计费服务",
+      "brand": "cursor",
+      "family": "插件服务",
+      "kind": "插件服务"
+    },
+    {
+      "id": "cursor-plugin-week",
+      "category": "cursor",
+      "name": "Cursor 插件服务 · 周卡",
+      "spec": "7 天 · 第三方插件额度 · 非官方会员订阅",
+      "channel": "第三方插件计费服务",
+      "brand": "cursor",
+      "family": "插件服务",
+      "kind": "插件服务"
+    },
+    {
+      "id": "runway-max-ios-month",
+      "category": "other",
+      "name": "Runway Max 月付直充",
+      "spec": "1 个月 · 9500积分套餐 · iOS渠道",
+      "channel": "iOS渠道直充现有账号",
+      "brand": "runway",
+      "family": "Runway",
+      "kind": "直充"
+    },
+    {
+      "id": "runway-pro-ios-month",
+      "category": "other",
+      "name": "Runway Pro 月付直充",
+      "spec": "1 个月 · 30美元套餐 · iOS渠道",
+      "channel": "iOS渠道直充现有账号",
+      "brand": "runway",
+      "family": "Runway",
+      "kind": "直充"
+    },
+    {
+      "id": "runway-47500-account",
+      "category": "other",
+      "name": "Runway 47500积分成品号",
+      "spec": "47500 积分 · 成品账号 · 仅首登质保",
+      "channel": "积分成品账号",
+      "brand": "runway",
+      "family": "Runway",
+      "kind": "成品号"
+    },
+    {
+      "id": "perplexity-pro-ios-month",
+      "category": "other",
+      "name": "Perplexity Pro 月付 · iOS",
+      "spec": "1 个月 · Pro套餐 · iOS直充",
+      "channel": "iOS渠道直充现有账号",
+      "brand": "perplexity",
+      "family": "Perplexity",
+      "kind": "直充"
+    },
+    {
+      "id": "perplexity-pro-year-special",
+      "category": "other",
+      "name": "Perplexity Pro 年卡 · 特殊渠道",
+      "spec": "12 个月 · 特殊渠道直充 · 仅激活质保",
+      "channel": "特殊渠道直充",
+      "brand": "perplexity",
+      "family": "Perplexity",
+      "kind": "直充"
+    },
+    {
+      "id": "gemini-pro-3-link-card",
+      "category": "gemini",
+      "name": "Gemini Pro · 3个月优惠资格",
+      "spec": "3个月活动资格 · 需要自备支付卡 · 链接交付",
+      "channel": "Coursera活动优惠链接",
+      "brand": "gemini",
+      "family": "激活链接",
+      "kind": "激活链接"
+    },
+    {
+      "id": "gemini-pro-18-account",
+      "category": "gemini",
+      "name": "Gemini Pro 18个月 · 成品号",
+      "spec": "活动标注18个月 · 独享账号 · 不保证反重力",
+      "channel": "活动开通成品账号",
+      "brand": "gemini",
+      "family": "成品账号",
+      "kind": "成品号"
+    },
+    {
+      "id": "gemini-pro-18-account-antigravity",
+      "category": "gemini",
+      "name": "Gemini Pro 18个月 · 反重力成品号",
+      "spec": "活动标注18个月 · 商家标注支持反重力 · 成品账号",
+      "channel": "活动开通成品账号",
+      "brand": "gemini",
+      "family": "成品账号",
+      "kind": "成品号"
+    },
+    {
+      "id": "gemini-pro-pixel-year",
+      "category": "gemini",
+      "name": "Gemini Pro 年卡 · Pixel直充",
+      "spec": "12 个月 · Pixel渠道 · 自备无会员账号",
+      "channel": "Pixel活动代开（包含绑卡）",
+      "brand": "gemini",
+      "family": "直充服务",
+      "kind": "直充"
+    },
+    {
+      "id": "grok-super-legacy-ios",
+      "category": "grok",
+      "name": "SuperGrok 月卡 · 旧版",
+      "spec": "1 个月 · iOS直充 · 不含Cursor等额外权益",
+      "channel": "iOS渠道旧版套餐直充",
+      "brand": "grok",
+      "family": "SuperGrok",
+      "kind": "直充"
+    },
+    {
+      "id": "grok-super-card-month",
+      "category": "grok",
+      "name": "SuperGrok 月卡 · 自助直充",
+      "spec": "1 个月 · 自助卡密 · 渠道未标注",
+      "channel": "自助卡密直充（渠道未标注）",
+      "brand": "grok",
+      "family": "SuperGrok",
+      "kind": "直充"
+    },
+    {
+      "id": "grok-ultra-200-month",
+      "category": "grok",
+      "name": "Grok Ultra 200美元档 · 直充",
+      "spec": "30 天 · Ultra套餐 · 自助充值",
+      "channel": "自助卡密直充（渠道未标注）",
+      "brand": "grok",
+      "family": "Ultra",
+      "kind": "直充"
+    },
+    {
+      "id": "grok-ultra-account-month",
+      "category": "grok",
+      "name": "Grok Ultra 月卡 · 成品号",
+      "spec": "1 个月 · Google内购渠道 · 首登质保",
+      "channel": "Google内购成品账号",
+      "brand": "grok",
+      "family": "Ultra",
+      "kind": "成品号"
+    },
+    {
+      "id": "claude-max5-account-ios",
+      "category": "claude",
+      "name": "Claude Max 5X · iOS成品号",
+      "spec": "30 天 · iOS渠道 · 成品账号",
+      "channel": "iOS渠道会员成品账号",
+      "brand": "claude",
+      "family": "Max 5X",
+      "kind": "成品号"
+    },
+    {
+      "id": "xiaolan-api-day",
+      "category": "other",
+      "name": "小蓝 API · 日卡",
+      "spec": "1 天 · 每24小时30美元站内额度 · 非官方API余额",
+      "channel": "小蓝AI第三方API服务",
+      "brand": "api",
+      "family": "小蓝 API",
+      "kind": "API服务"
+    },
+    {
+      "id": "xiaolan-api-week",
+      "category": "other",
+      "name": "小蓝 API · 周卡",
+      "spec": "7 天 · 每24小时30美元站内额度 · 非官方API余额",
+      "channel": "小蓝AI第三方API服务",
+      "brand": "api",
+      "family": "小蓝 API",
+      "kind": "API服务"
+    },
+    {
+      "id": "xiaolan-api-month",
+      "category": "other",
+      "name": "小蓝 API · 月卡",
+      "spec": "1 个月 · 每24小时30美元站内额度 · 非官方API余额",
+      "channel": "小蓝AI第三方API服务",
+      "brand": "api",
+      "family": "小蓝 API",
+      "kind": "API服务"
+    },
+    {
+      "id": "xiaolan-api-credit-30",
+      "category": "other",
+      "name": "小蓝 API · 30美元额度卡",
+      "spec": "30 美元站内额度 · 无时限 · 非官方API余额",
+      "channel": "小蓝AI第三方API服务",
+      "brand": "api",
+      "family": "小蓝 API",
+      "kind": "API服务"
+    },
+    {
+      "id": "xiaolan-api-credit-300",
+      "category": "other",
+      "name": "小蓝 API · 300美元额度卡",
+      "spec": "300 美元站内额度 · 无时限 · 非官方API余额",
+      "channel": "小蓝AI第三方API服务",
+      "brand": "api",
+      "family": "小蓝 API",
+      "kind": "API服务"
+    },
+    {
+      "id": "xiaolan-api-credit-500",
+      "category": "other",
+      "name": "小蓝 API · 500美元额度卡",
+      "spec": "500 美元站内额度 · 无时限 · 非官方API余额",
+      "channel": "小蓝AI第三方API服务",
+      "brand": "api",
+      "family": "小蓝 API",
+      "kind": "API服务"
+    },
+    {
+      "id": "leonardo-8500-account",
+      "category": "other",
+      "name": "Leonardo 8500积分成品号",
+      "spec": "8500 积分 · 到手尽快使用 · 首登质保",
+      "channel": "积分成品账号",
+      "brand": "leonardo",
+      "family": "Leonardo",
+      "kind": "成品号"
+    },
+    {
+      "id": "plus-account-ios-month",
+      "category": "gpt",
+      "name": "Plus 月付成品号 · 美区iOS",
+      "spec": "1 个月 · 美区iOS实付 · 独享成品号",
+      "channel": "美区iOS成品账号",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "成品号"
+    },
+    {
+      "id": "x-premiumplus-ios-month",
+      "category": "other",
+      "name": "X Premium+ 月付 · iOS",
+      "spec": "1 个月 · 商家标注赠SuperGrok · iOS直充",
+      "channel": "iOS渠道自助直充",
+      "brand": "x",
+      "family": "X Premium",
+      "kind": "直充"
+    },
+    {
+      "id": "manus-pro-5000-account",
+      "category": "other",
+      "name": "Manus Pro 5000积分 · 成品号",
+      "spec": "标注月卡 · 5000积分 · 仅首登质保",
+      "channel": "特殊渠道会员成品号",
+      "brand": "manus",
+      "family": "Manus",
+      "kind": "成品号"
+    },
+    {
+      "id": "manus-credit-2000",
+      "category": "other",
+      "name": "Manus 2000积分 · 直充",
+      "spec": "2000 积分 · 充现有账号 · 有效期未标注",
+      "channel": "积分直充现有账号",
+      "brand": "manus",
+      "family": "Manus",
+      "kind": "额度充值"
+    },
+    {
+      "id": "manus-credit-5000",
+      "category": "other",
+      "name": "Manus 5000积分 · 直充",
+      "spec": "5000 积分 · 充现有账号 · 有效期未标注",
+      "channel": "积分直充现有账号",
+      "brand": "manus",
+      "family": "Manus",
+      "kind": "额度充值"
+    },
+    {
+      "id": "manus-credit-10000",
+      "category": "other",
+      "name": "Manus 10000积分 · 直充",
+      "spec": "10000 积分 · 充现有账号 · 有效期未标注",
+      "channel": "积分直充现有账号",
+      "brand": "manus",
+      "family": "Manus",
+      "kind": "额度充值"
+    },
+    {
+      "id": "kiro-credit-1000-account",
+      "category": "other",
+      "name": "Kiro 1000积分 · 成品号",
+      "spec": "1000 积分 · JSON账号交付 · 仅首登质保",
+      "channel": "商家交付JSON账号资料",
+      "brand": "kiro",
+      "family": "Kiro",
+      "kind": "成品号"
+    },
+    {
+      "id": "kiro-credit-5000-account",
+      "category": "other",
+      "name": "Kiro 5000积分 · 成品号",
+      "spec": "5000 积分 · JSON账号交付 · 仅首登质保",
+      "channel": "商家交付JSON账号资料",
+      "brand": "kiro",
+      "family": "Kiro",
+      "kind": "成品号"
+    },
+    {
+      "id": "kiro-credit-10000-account",
+      "category": "other",
+      "name": "Kiro 10000积分 · 成品号",
+      "spec": "10000 积分 · JSON账号交付 · 仅首登质保",
+      "channel": "商家交付JSON账号资料",
+      "brand": "kiro",
+      "family": "Kiro",
+      "kind": "成品号"
+    },
+    {
+      "id": "tg-premium-gift-3",
+      "category": "other",
+      "name": "Telegram Premium · 3个月礼品链接",
+      "spec": "3 个月 · 礼品激活链接",
+      "channel": "Telegram礼品链接",
+      "brand": "telegram",
+      "family": "Telegram",
+      "kind": "激活链接"
+    },
+    {
+      "id": "tg-premium-direct-3",
+      "category": "other",
+      "name": "Telegram Premium · 3个月直充",
+      "spec": "3 个月 · 提供用户名 · 人工直充",
+      "channel": "商家按用户名人工直充",
+      "brand": "telegram",
+      "family": "Telegram",
+      "kind": "直充"
+    },
+    {
+      "id": "tg-premium-gift-6",
+      "category": "other",
+      "name": "Telegram Premium · 6个月礼品链接",
+      "spec": "6 个月 · 礼品激活链接",
+      "channel": "Telegram礼品链接",
+      "brand": "telegram",
+      "family": "Telegram",
+      "kind": "激活链接"
+    },
+    {
+      "id": "tg-premium-direct-6",
+      "category": "other",
+      "name": "Telegram Premium · 6个月直充",
+      "spec": "6 个月 · 提供用户名 · 人工直充",
+      "channel": "商家按用户名人工直充",
+      "brand": "telegram",
+      "family": "Telegram",
+      "kind": "直充"
+    },
+    {
+      "id": "tg-premium-gift-12",
+      "category": "other",
+      "name": "Telegram Premium · 12个月礼品链接",
+      "spec": "12 个月 · 礼品激活链接",
+      "channel": "Telegram礼品链接",
+      "brand": "telegram",
+      "family": "Telegram",
+      "kind": "激活链接"
+    },
+    {
+      "id": "tg-premium-direct-12",
+      "category": "other",
+      "name": "Telegram Premium · 12个月直充",
+      "spec": "12 个月 · 提供用户名 · 人工直充",
+      "channel": "商家按用户名人工直充",
+      "brand": "telegram",
+      "family": "Telegram",
+      "kind": "直充"
+    },
+    {
+      "id": "cursor-plugin-month",
+      "category": "cursor",
+      "name": "Cursor 插件服务 · 月卡",
+      "spec": "1 个月 · 第三方插件计费 · 非官方会员订阅",
+      "channel": "第三方插件计费服务",
+      "brand": "cursor",
+      "family": "插件服务",
+      "kind": "插件服务"
+    },
+    {
+      "id": "claude-pro-account-month",
+      "category": "claude",
+      "name": "Claude Pro 月卡 · 独享成品号",
+      "spec": "30 天 · Pro套餐 · 独享成品账号",
+      "channel": "会员成品账号（渠道未标注）",
+      "brand": "claude",
+      "family": "Pro",
+      "kind": "成品号"
+    },
+    {
+      "id": "plus-shared-10-month",
+      "category": "gpt",
+      "name": "Plus 月卡 · 10人共享",
+      "spec": "30 天 · 10人共用账号及额度",
+      "channel": "10人共享成品账号",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "共享号"
+    },
+    {
+      "id": "gemini-ultra-family-month",
+      "category": "gemini",
+      "name": "Gemini Ultra · 家庭组月席位",
+      "spec": "30 天 · 家庭组子账号 · 不含Flow积分",
+      "channel": "人工邀请加入家庭组",
+      "brand": "gemini",
+      "family": "Ultra",
+      "kind": "共享席位"
+    },
+    {
+      "id": "notion-business-3-link",
+      "category": "other",
+      "name": "Notion Business · 3个月链接",
+      "spec": "活动3个月 · 需自备支付卡 · 无持续时长质保",
+      "channel": "活动激活链接（需绑卡）",
+      "brand": "notion",
+      "family": "Notion",
+      "kind": "激活链接"
+    },
+    {
+      "id": "adobe-express-year-link",
+      "category": "other",
+      "name": "Adobe Express Premium · 年卡链接",
+      "spec": "活动12个月 · 印度地区要求 · 仅链接质保",
+      "channel": "活动激活链接",
+      "brand": "adobe",
+      "family": "Adobe",
+      "kind": "激活链接"
+    },
+    {
+      "id": "apple-gift-us-20",
+      "category": "other",
+      "name": "Apple 美区礼品卡 · 20美元",
+      "spec": "20 美元 · 美区礼品卡 · 核对账号地区",
+      "channel": "礼品卡兑换码",
+      "brand": "apple",
+      "family": "Apple",
+      "kind": "礼品卡"
+    },
+    {
+      "id": "apple-id-us",
+      "category": "other",
+      "name": "Apple ID · 美国下载号",
+      "spec": "美国地区 · 密保账号 · App Store下载使用",
+      "channel": "App Store下载成品账号",
+      "brand": "apple",
+      "family": "Apple",
+      "kind": "成品号"
+    },
+    {
+      "id": "apple-id-hk",
+      "category": "other",
+      "name": "Apple ID · 香港下载号",
+      "spec": "香港地区 · 密保账号 · App Store下载使用",
+      "channel": "App Store下载成品账号",
+      "brand": "apple",
+      "family": "Apple",
+      "kind": "成品号"
+    },
+    {
+      "id": "apple-id-jp",
+      "category": "other",
+      "name": "Apple ID · 日本下载号",
+      "spec": "日本地区 · 密保账号 · App Store下载使用",
+      "channel": "App Store下载成品账号",
+      "brand": "apple",
+      "family": "Apple",
+      "kind": "成品号"
+    },
+    {
+      "id": "netflix-shared-26",
+      "category": "other",
+      "name": "Netflix · 26天共享车位",
+      "spec": "26 天 · 5人共享车位 · 不支持电视",
+      "channel": "共享成品账号车位",
+      "brand": "netflix",
+      "family": "Netflix",
+      "kind": "共享号"
+    },
+    {
+      "id": "perplexity-pro-android-month",
+      "category": "other",
+      "name": "Perplexity Pro 月付 · 安卓",
+      "spec": "1 个月 · 安卓渠道 · 不含额外积分",
+      "channel": "安卓渠道直充现有账号",
+      "brand": "perplexity",
+      "family": "Perplexity",
+      "kind": "直充"
+    },
+    {
+      "id": "figma-year-account",
+      "category": "other",
+      "name": "Figma · 年付成品号",
+      "spec": "365 天 · 每月3000 AI积分 · 套餐版本未标注",
+      "channel": "会员成品账号",
+      "brand": "figma",
+      "family": "Figma",
+      "kind": "成品号"
+    },
+    {
+      "id": "x-premium-ios-month",
+      "category": "other",
+      "name": "X Premium 月付 · iOS",
+      "spec": "1 个月 · iOS直充 · 新旧版本未标注",
+      "channel": "iOS渠道自助直充",
+      "brand": "x",
+      "family": "X Premium",
+      "kind": "直充"
+    },
+    {
+      "id": "x-premium-legacy-ios-month",
+      "category": "other",
+      "name": "X Premium 月付 · 旧版iOS",
+      "spec": "1 个月 · 旧版 · 不含Grok/Cursor会员",
+      "channel": "iOS渠道旧版自助直充",
+      "brand": "x",
+      "family": "X Premium",
+      "kind": "直充"
+    },
+    {
+      "id": "x-premiumplus-legacy-ios-year",
+      "category": "other",
+      "name": "X Premium+ 年付 · 旧版iOS",
+      "spec": "12 个月 · 旧版 · 赠Grok权益以原店为准",
+      "channel": "iOS渠道旧版自助直充",
+      "brand": "x",
+      "family": "X Premium",
+      "kind": "直充"
+    },
+    {
+      "id": "x-premiumplus-ios-year",
+      "category": "other",
+      "name": "X Premium+ 年付 · iOS",
+      "spec": "12 个月 · 版本未标注 · 仅1个月订阅质保",
+      "channel": "iOS渠道自助直充",
+      "brand": "x",
+      "family": "X Premium",
+      "kind": "直充"
+    },
+    {
+      "id": "claude-max5-card-month",
+      "category": "claude",
+      "name": "Claude Max 5X · 卡充",
+      "spec": "1个月 · 卡付渠道 · 地区未标注",
+      "channel": "卡付渠道（地区未标注）",
+      "brand": "claude",
+      "family": "Max 5X",
+      "kind": "直充"
+    },
+    {
+      "id": "claude-max5-self-month",
+      "category": "claude",
+      "name": "Claude Max 5X · 自助CDK",
+      "spec": "1个月 · 自助CDK · 非iOS（地区未标注）",
+      "channel": "自助CDK（非iOS，地区未标注）",
+      "brand": "claude",
+      "family": "Max 5X",
+      "kind": "直充"
+    },
+    {
+      "id": "claude-max20-self-month",
+      "category": "claude",
+      "name": "Claude Max 20X · 自助CDK",
+      "spec": "1个月 · 自助CDK · 地区未标注",
+      "channel": "自助CDK（渠道及地区未标注）",
+      "brand": "claude",
+      "family": "Max 20X",
+      "kind": "直充"
+    },
+    {
+      "id": "claude-pro-self-month",
+      "category": "claude",
+      "name": "Claude Pro · 自助CDK",
+      "spec": "30天 · 自助CDK · 非iOS（地区未标注）",
+      "channel": "自助CDK（非iOS，地区未标注）",
+      "brand": "claude",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "grok-plus-us-card",
+      "category": "grok",
+      "name": "Grok Plus · 美区卡充",
+      "spec": "美区卡付 · 限半价资格账号 · 周期以原店为准",
+      "channel": "美区官网卡付（需半价资格）",
+      "brand": "grok",
+      "family": "Plus",
+      "kind": "直充"
+    },
+    {
+      "id": "grok-premium-us-card",
+      "category": "grok",
+      "name": "Grok Premium · 美区卡充",
+      "spec": "美区卡付 · 限半价资格账号 · 周期以原店为准",
+      "channel": "美区官网卡付（需半价资格）",
+      "brand": "grok",
+      "family": "Premium",
+      "kind": "直充"
+    },
+    {
+      "id": "grok-super-us-card",
+      "category": "grok",
+      "name": "Grok Super · 美区卡充",
+      "spec": "美区卡付 · 限半价资格账号 · 周期以原店为准",
+      "channel": "美区官网卡付（需半价资格）",
+      "brand": "grok",
+      "family": "Super",
+      "kind": "直充"
+    },
+    {
+      "id": "grok-ultra-us-card",
+      "category": "grok",
+      "name": "Grok Ultra · 美区卡充",
+      "spec": "美区卡付 · 限半价资格账号 · 周期以原店为准",
+      "channel": "美区官网卡付（需半价资格）",
+      "brand": "grok",
+      "family": "Ultra",
+      "kind": "直充"
+    },
+    {
+      "id": "grok-premium-ios-month",
+      "category": "grok",
+      "name": "Grok Premium 月卡 · iOS",
+      "spec": "1个月 · iOS渠道 · 联系客服办理",
+      "channel": "iOS渠道（人工办理）",
+      "brand": "grok",
+      "family": "Premium",
+      "kind": "直充"
+    },
+    {
+      "id": "grok-ultra-manual-month",
+      "category": "grok",
+      "name": "Grok Ultra 月卡 · 人工直充",
+      "spec": "1个月 · 官网卡付 · 半价资格 · 人工办理",
+      "channel": "官网卡付（人工办理）",
+      "brand": "grok",
+      "family": "Ultra",
+      "kind": "直充"
+    },
+    {
+      "id": "plus-account-month",
+      "category": "gpt",
+      "name": "ChatGPT Plus 月卡 · 独享成品号",
+      "spec": "1 个月 · 地区及支付渠道未标注 · 独享成品账号",
+      "channel": "会员成品账号（渠道未标注）",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "成品号"
+    },
+    {
+      "id": "team-seat-25d",
+      "category": "gpt",
+      "name": "ChatGPT Team 普通席位 · 25天",
+      "spec": "约 25 天 · 团队空间渠道 · 共享席位或邀请加入",
+      "channel": "团队普通席位（地区未标注）",
+      "brand": "gpt",
+      "family": "Team",
+      "kind": "共享号"
+    },
+    {
+      "id": "grok-super-quarter-direct",
+      "category": "grok",
+      "name": "SuperGrok 季卡 · 正规直充",
+      "spec": "3 个月 · 地区及支付渠道未标注 · 直充现有账号",
+      "channel": "官方订阅直充（地区未标注）",
+      "brand": "grok",
+      "family": "SuperGrok",
+      "kind": "直充"
+    },
+    {
+      "id": "grok-ultra-account-month-generic",
+      "category": "grok",
+      "name": "Grok Ultra 月卡 · 成品号",
+      "spec": "1 个月 · 地区及内购渠道未标注 · 独享成品账号",
+      "channel": "Grok Ultra会员成品账号",
+      "brand": "grok",
+      "family": "Ultra",
+      "kind": "成品号"
+    },
+    {
+      "id": "grok-super-legacy-cdk-month",
+      "category": "grok",
+      "name": "SuperGrok 旧版月卡 · CDK",
+      "spec": "1 个月 · 渠道及地区未标注 · CDK充值现有账号",
+      "channel": "旧版套餐自助CDK",
+      "brand": "grok",
+      "family": "SuperGrok",
+      "kind": "直充"
+    },
+    {
+      "id": "team-seat-30d",
+      "category": "gpt",
+      "name": "ChatGPT Team 普通席位 · 30天",
+      "spec": "30 天 · 团队空间渠道 · 已接码账号或席位交付",
+      "channel": "团队普通席位（地区未标注）",
+      "brand": "gpt",
+      "family": "Team",
+      "kind": "共享号"
+    },
+    {
+      "id": "plus-phi-cdk-30d",
+      "category": "gpt",
+      "name": "ChatGPT Plus 月卡 · 菲区自助CDK",
+      "spec": "30 天 · 菲律宾卡付 · CDK自助充值现有账号",
+      "channel": "菲律宾卡付自助CDK",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "直充"
+    },
+    {
+      "id": "plus-account-vn-apple-month",
+      "category": "gpt",
+      "name": "ChatGPT Plus 月卡 · 越南Apple支付成品号",
+      "spec": "1 个月 · 越南实卡Apple支付 · Gmail独享成品号",
+      "channel": "越南Apple原生支付成品账号",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "成品号"
+    },
+    {
+      "id": "grok-super-legacy-cdk-quarter",
+      "category": "grok",
+      "name": "SuperGrok 旧版季卡 · CDK",
+      "spec": "3 个月 · 渠道及地区未标注 · CDK充值现有账号",
+      "channel": "旧版套餐自助CDK",
+      "brand": "grok",
+      "family": "SuperGrok",
+      "kind": "直充"
+    },
+    {
+      "id": "plus-account-br-month",
+      "category": "gpt",
+      "name": "ChatGPT Plus 月卡 · 巴西实卡成品号",
+      "spec": "1 个月 · 巴西实卡 · 独享成品账号",
+      "channel": "巴西实卡成品账号",
+      "brand": "gpt",
+      "family": "Plus",
+      "kind": "成品号"
+    },
+    {
+      "id": "claude-pro-uid-month",
+      "category": "claude",
+      "name": "Claude Pro 月卡 · UID直充",
+      "spec": "1 个月 · 地区及支付渠道未标注 · UID直充现有账号",
+      "channel": "UID会员直充",
+      "brand": "claude",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "gemini-pro-jio-18-direct",
+      "category": "gemini",
+      "name": "Gemini Pro 18个月 · Jio直充",
+      "spec": "18 个月 · Jio活动渠道 · 直充现有账号",
+      "channel": "Jio活动直充",
+      "brand": "gemini",
+      "family": "直充服务",
+      "kind": "直充"
+    },
+    {
+      "id": "claude-pro-ng-month",
+      "category": "claude",
+      "name": "Claude Pro 月卡 · 尼日利亚区",
+      "spec": "1 个月 · 尼日利亚官方渠道 · 直充现有账号",
+      "channel": "尼日利亚区官方直充",
+      "brand": "claude",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "pro200-card-cdk",
+      "category": "gpt",
+      "name": "Pro 200美元档 · 官网卡付CDK",
+      "spec": "30 天 · 官网卡付且地区未标注 · CDK自助充值现有账号",
+      "channel": "官网卡付自助CDK（地区未标注）",
+      "brand": "gpt",
+      "family": "Pro",
+      "kind": "直充"
+    },
+    {
+      "id": "go-egypt-cdk-month",
+      "category": "gpt",
+      "name": "ChatGPT Go 月卡 · 埃及自助直充",
+      "spec": "1个月 · 埃及官网卡付 · CDK自助充值现有账号",
+      "channel": "埃及官网银行卡代付（自助CDK）",
+      "family": "Go",
+      "kind": "直充",
+      "brand": "gpt"
+    },
+    {
+      "id": "pro100-egypt-cdk-month",
+      "category": "gpt",
+      "name": "ChatGPT Pro 100美元档 · 埃及自助直充",
+      "spec": "1个月 · 埃及官网卡付 · CDK自助充值现有账号",
+      "channel": "埃及官网银行卡代付（自助CDK）",
+      "family": "Pro",
+      "kind": "直充",
+      "brand": "gpt"
+    },
+    {
+      "id": "pro500-egypt-cdk-month",
+      "category": "gpt",
+      "name": "ChatGPT Pro 500美元档 · 埃及自助直充",
+      "spec": "1个月 · 埃及官网卡付 · CDK自助充值现有账号",
+      "channel": "埃及官网银行卡代付（自助CDK）",
+      "family": "Pro",
+      "kind": "直充",
+      "brand": "gpt"
+    },
+    {
+      "id": "claude-max20-account-ios-month",
+      "category": "claude",
+      "name": "Claude Max 20X 月卡 · 美区iOS成品号",
+      "spec": "1个月（原店标注31天） · 美区iOS · 成品账号",
+      "channel": "iOS美区会员成品账号",
+      "family": "Max 20X",
+      "kind": "成品号",
+      "brand": "claude"
+    }
+  ]
+}

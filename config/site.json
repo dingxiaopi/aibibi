@@ -1,0 +1,12 @@
+{
+  "name": "AI比比",
+  "url": "http://127.0.0.1:8787",
+  "tagline": "AI 订阅比价，先比再选",
+  "description": "订阅之前，先比比。比较 AI 订阅的同规格报价、库存和购买条件，保留原店来源与采集时间。",
+  "logo": "/brand/ai-bibi-mark.svg",
+  "favicon": "/brand/favicon.svg",
+  "redirectHosts": [],
+  "analyticsScript": "",
+  "analyticsId": "",
+  "demo": false
+}

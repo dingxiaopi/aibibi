@@ -1,0 +1,46 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: cloudflare/package-lock.json
+      - name: Python tests with fixed fixtures
+        run: python3 -m unittest discover -s tests
+      - name: Install frontend and Worker dependencies
+        working-directory: cloudflare
+        run: npm ci
+      - name: Type checking
+        working-directory: cloudflare
+        run: npm run check
+      - name: Isolated Worker and frontend tests
+        working-directory: cloudflare
+        run: npm test
+      - name: Build and deployment dry run
+        working-directory: cloudflare
+        run: npm run build
+      - name: Prepare isolated demo database
+        working-directory: cloudflare
+        run: npm run demo -- --prepare-only
+      - name: Verify instance data remains untracked
+        run: git diff --exit-code

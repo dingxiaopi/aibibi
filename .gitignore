@@ -1,0 +1,22 @@
+.runtime/
+.collection/
+__pycache__/
+*.pyc
+.DS_Store
+node_modules/
+.wrangler/
+.dev.vars*
+.generated/
+cloudflare/public/
+.env*
+
+# Instance configuration, operational data and generated public settings
+.local/
+cloudflare/wrangler.local.jsonc
+!**/.dev.vars.example
+!.env.ai-review.example
+# Legacy operational files
+collector/seeds.json
+collector/discovery.json
+dist/
+cloudflare/wrangler.demo.jsonc

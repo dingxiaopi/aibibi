@@ -1,0 +1,7 @@
+{
+  "shop_limit": 200,
+  "shops": [
+    {"id": "S12345", "platform": "16688", "enabled": false},
+    {"id": "example", "platform": "acg", "origin": "https://shop.example.com", "enabled": false}
+  ]
+}
