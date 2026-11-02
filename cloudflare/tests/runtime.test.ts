@@ -566,6 +566,30 @@ test("external collector import enforces approved mappings and preserves origina
     124,
   );
 });
+test("a scoped collector batch leaves omitted shops and their observations unchanged", async () => {
+  const at = "2026-01-01T00:00:00Z";
+  await db.prepare("INSERT INTO shops(id,platform,token,name,url,data,checked_at) VALUES(?,?,?,?,?,?,?)")
+    .bind("S999", "16688", "S999", "Outside scope", "https://www.16688.com.cn/shop/S999", JSON.stringify({ checked_at: at }), at).run();
+  await db.prepare("INSERT INTO quotes VALUES(?,?,?,?)")
+    .bind("S999:G999", "S999", "plus", JSON.stringify({ id: "S999:G999", shop_id: "S999", price: 99, checked_at: at })).run();
+  const outside = async () => ({
+    shop: await db.prepare("SELECT * FROM shops WHERE id='S999'").first(),
+    quote: await db.prepare("SELECT * FROM quotes WHERE id='S999:G999'").first(),
+  });
+  const before = await outside();
+  try {
+    const response = await mf.dispatchFetch("http://example.test/api/ingest", {
+      method: "POST",
+      headers: { Authorization: "Bearer test-only-collector-token-long-enough", "Content-Type": "application/json" },
+      body: JSON.stringify({ schema_version: 1, shops: [{ id: "S123", collection_status: "ok", checked_at: new Date().toISOString(), source_item_count: 1 }], quotes: [], review_items: [], mapping_fingerprints: {} }),
+    });
+    assert.equal(response.status, 200);
+    assert.deepEqual(await outside(), before);
+  } finally {
+    await db.prepare("DELETE FROM quotes WHERE id='S999:G999'").run();
+    await db.prepare("DELETE FROM shops WHERE id='S999'").run();
+  }
+});
 test("retired collection endpoints return 410 without creating jobs or changing quotes", async () => {
   const before = (await db.prepare("SELECT data FROM quotes ORDER BY id").all())
     .results;

@@ -61,7 +61,8 @@ python3.11 -m collector.actions_state prepare \
 将生成的 `profiles/production.bin` 提交到私有仓库，明文目录、密钥和凭据不要提交。
 
 `sample` profile 需要用独立的少量店铺数据建立；它不会自动从 production 随机抽样。
-两个 profile 的密文绑定各自身份，不能通过互换文件名冒充对方。
+`hosted` 是可选的独立来源子集，供托管 runner 使用；必须由运营者显式选定来源并准备状态。
+它不自动检测或移除访问失败的来源，完整 `production` 状态应保留。每个 profile 的密文绑定各自身份，不能通过互换文件名冒充对方。
 
 ## 手动运行
 
@@ -70,6 +71,7 @@ python3.11 -m collector.actions_state prepare \
 | 输入 | 含义 |
 | --- | --- |
 | `profile=sample` | 独立的少量店铺试跑状态 |
+| `profile=hosted` | 运营者显式配置的托管 runner 来源子集 |
 | `profile=production` | 完整来源和审核映射 |
 | `mode=probe` | 实际访问原店、采集并保存状态，不推送线上 |
 | `mode=update` | 同步、采集、导出、推送 |
@@ -77,7 +79,12 @@ python3.11 -m collector.actions_state prepare \
 | `mode=restart` | 明确放弃未完成进度，重新采集并推送；旧密文仍在私有 Git 历史中 |
 
 第一次先 sample + probe，再 sample + update；确认 runner 的原店访问能力和推送结果后，
-再运行 production + update。遇到验证码、登录墙、WAF 或源站限制时，不绕过。
+再运行选定范围的 hosted 或 production + update。遇到验证码、登录墙、WAF 或源站限制时，不绕过。
+
+使用子集时，seeds 的店铺、映射、排除记录，以及 snapshot 的店铺、报价和待审记录都应限定在该子集；
+不要仅删除店铺配置却保留其他店的旧报价。推送按店铺和报价 ID 更新，不将本轮未包含的店铺视为下架；
+未采集来源仍保留原有观察时间，并继续遵守网站的报价时效规则，不能算作本轮更新。
+80% 成功率门槛按所选 profile 内的活跃来源计算，不能把子集成功率报告为全站覆盖率。
 
 托管 runner 的网络访问能力必须实际验证；本机能读取的来源，不保证 GitHub 的机器也能读取。
 例如 2026-11-02 的验证中，wzyp 在托管 runner 返回验证页，而同一来源在原本机可以正常读取。

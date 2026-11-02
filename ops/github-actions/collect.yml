@@ -7,7 +7,7 @@ on:
       profile:
         description: Collector state profile
         type: choice
-        options: [sample, production]
+        options: [sample, hosted, production]
         default: sample
       mode:
         description: Probe only; update publishes; resume continues; restart abandons unfinished progress and publishes a new round
