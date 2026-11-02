@@ -7,11 +7,11 @@ Python 采集与审核 · React + Vite 前端 · Cloudflare Workers + D1 · MIT
 [![Quality](https://github.com/dingxiaopi/aibibi/actions/workflows/quality.yml/badge.svg)](https://github.com/dingxiaopi/aibibi/actions/workflows/quality.yml)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-[AI比比网站](https://aibibi.app) · [部署说明](public-docs/deployment.md) · [常见问题](public-docs/troubleshooting.md) · [贡献指南](CONTRIBUTING.md)
+[v0.2.0 发布说明](public-docs/releases/v0.2.0.md) · [AI比比网站](https://aibibi.app) · [部署说明](public-docs/deployment.md) · [常见问题](public-docs/troubleshooting.md) · [贡献指南](CONTRIBUTING.md)
 
 ## 先运行演示
 
-需要 Node.js 22.18+；实际采集另需 Python 3.9+，支持 macOS / Linux。
+需要 Node.js 22.18+；普通采集另需 Python 3.9+，加密的 Actions 状态工具需 Python 3.11，支持 macOS / Linux。
 
 ```sh
 git clone https://github.com/dingxiaopi/aibibi.git
@@ -89,7 +89,7 @@ npm run build
 - [采集与适配器贡献](public-docs/collectors.md)
 - [GitHub Actions 采集](public-docs/github-actions.md)
 - [常见问题与反馈](public-docs/troubleshooting.md)
-- [首次公开发布](public-docs/release.md)
+- [版本发布流程](public-docs/release.md)
 - [贡献指南](CONTRIBUTING.md) · [安全反馈](SECURITY.md)
 
 ## 许可与来源
