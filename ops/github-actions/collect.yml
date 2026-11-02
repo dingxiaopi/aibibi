@@ -95,7 +95,21 @@ jobs:
           git add -- "profiles/$PROFILE.bin"
           if ! git diff --cached --quiet; then
             git commit -m "Save $PROFILE collector state (run $GITHUB_RUN_ID)"
-            git push origin HEAD:main
+            saved=false
+            for attempt in 1 2 3 4 5; do
+              if git -c http.version=HTTP/1.1 push origin HEAD:main; then
+                saved=true
+                break
+              fi
+              if [ "$attempt" -lt 5 ]; then
+                echo "Encrypted state upload interrupted; retrying ($attempt/5)."
+                sleep "$((attempt * 10))"
+              fi
+            done
+            if [ "$saved" != true ]; then
+              echo "Encrypted state was not saved remotely. Private work is retained for recovery."
+              exit 1
+            fi
           fi
       - name: Remove plaintext only after durable encrypted save
         if: always() && startsWith(inputs.profile, 'vps') && steps.persist.outcome == 'success'
