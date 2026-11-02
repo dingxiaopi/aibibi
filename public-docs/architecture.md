@@ -50,5 +50,6 @@ Collection runs manually on the operator's machine or through the optional
 in a separate private repository. The update command has durable checkpoints;
 batch transfers have hashes, server receipts and retry support. No cron, launchd
 or cloud schedule is installed. The public repository's Quality workflow only tests code.
-Multiple writers sharing one instance are not supported; multi-node leases and
-task distribution are future work.
+The optional hosted/VPS profiles partition sources into non-overlapping groups and
+share one serial Actions queue. Concurrent writers, multi-node leases and automatic
+task distribution are not supported. Each profile retains its own authoritative state.

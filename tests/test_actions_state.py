@@ -143,6 +143,21 @@ class EncryptedStateTests(unittest.TestCase):
                     restore(root / 'hosted.bin', root / 'wrong', profile, key)
                 self.assertFalse((root / 'wrong').exists())
 
+    def test_vps_profiles_are_distinct_from_each_other_and_hosted_state(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = self.fixture(root / 'source')
+            key = AESGCM.generate_key(bit_length=256)
+            for profile in ('vps_sample', 'vps'):
+                archive = root / (profile + '.bin')
+                prepare(source, archive, profile, key, 'https://example.test')
+                restore(archive, root / profile, profile, key)
+                self.assertEqual(json.loads((root / profile / 'instance.json').read_text())['profile'], profile)
+                for other in ('hosted', 'production', 'vps_sample' if profile == 'vps' else 'vps'):
+                    with self.assertRaises(StateError):
+                        restore(archive, root / 'wrong', other, key)
+                    self.assertFalse((root / 'wrong').exists())
+
     def test_history_compaction_preserves_observations_and_does_not_modify_source(self):
         import sqlite3
         with tempfile.TemporaryDirectory() as directory:

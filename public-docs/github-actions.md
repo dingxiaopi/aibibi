@@ -30,7 +30,8 @@
 | `APP_REPOSITORY` | 自己审核过的公开代码仓库，例如 `owner/aibibi` |
 | `APP_REF` | 对应的完整提交 SHA，避免未审核代码自动获得运行凭据 |
 | `COLLECTOR_URL` | 自己的 HTTPS Worker origin，必须与加密 profile 的目标一致 |
-| `COLLECTOR_RUNNER_LABELS` | 可选 JSON 数组；默认 `["ubuntu-latest"]`。专用自托管节点可设为 `["self-hosted","aibibi-collector"]` |
+| `COLLECTOR_RUNNER_LABELS` | 普通 profile 的可选 JSON 标签数组；默认 `["ubuntu-latest"]` |
+| `COLLECTOR_VPS_RUNNER_LABELS` | VPS profile 的可选 JSON 标签数组；默认 `["self-hosted","aibibi-vps"]`，不会回退到托管机器 |
 
 配置私有仓库 Secrets：
 
@@ -104,6 +105,8 @@ gh secret set COLLECTOR_STATE_KEY --repo YOUR_OWNER/YOUR_PRIVATE_STATE_REPO < .l
 | --- | --- |
 | `profile=sample` | 独立的少量店铺试跑状态 |
 | `profile=hosted` | 运营者显式配置的托管 runner 来源子集 |
+| `profile=vps_sample` | 专用 VPS 节点上的独立少量来源试跑 |
+| `profile=vps` | 专用 VPS 节点负责的来源组 |
 | `profile=production` | 完整来源和审核映射 |
 | `mode=probe` | 实际访问原店、采集并保存状态，不推送线上 |
 | `mode=update` | 同步、采集、导出、推送 |
@@ -122,6 +125,23 @@ gh secret set COLLECTOR_STATE_KEY --repo YOUR_OWNER/YOUR_PRIVATE_STATE_REPO < .l
 例如 2026-11-02 的验证中，wzyp 在托管 runner 返回验证页，而同一来源在原本机可以正常读取。
 这种情况需要使用能正常访问原店的专用采集节点，或明确限定托管 runner 的采集范围，不能降低门槛后盲目推送。
 自托管 runner 应注册在私有运行仓库，使用专用标签，保持工作流仅手动触发并固定采集代码提交。
+
+## 按来源分配运行节点
+
+`hosted` 和 `vps` 应包含互不重叠的店铺、映射、排除记录和快照；它们共享私有仓库的全局串行锁，
+分别保存独立密文。先 `vps_sample + probe`，再做小范围 update 并验证服务器回执，最后更新 vps 正式范围。
+公开仓库的 PR 和 Quality 检查不使用自托管节点，也不接触运营凭据。
+
+VPS runner 只注册到自己的私有状态仓库，使用专用标签和无 sudo/docker 权限的运行用户。
+默认标签为 self-hosted、aibibi-vps，GitHub 自带的 Linux/X64 标签也会保留。
+按照 [GitHub 官方步骤](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners)
+安装并注册官方 runner；使用专用工作目录、0077 umask、合理内存/CPU限制，配置 runsvc.sh 对应的服务。
+服务常驻监听任务不等于定时采集；工作流仍然只由 workflow_dispatch 手动启动。
+
+VPS 会保留工作目录。工作流在成功保存密文到私有 Git 后才移除解密数据；
+若解密/加密或 Git 保存中断而留下 app/.local/data，下次任务在 checkout 之前停止，避免清理时丢失未保存进度。
+需要先在 VPS 上检查旧工作目录和私有仓库回执，恢复未保存数据或确认已加密保存，再移走该目录后重新运行。
+不要在未核对状态时直接删除它。
 
 ## 失败与状态
 
