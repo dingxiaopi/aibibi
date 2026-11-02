@@ -1,0 +1,50 @@
+name: 问题反馈 / Bug report
+description: 报告安装、部署、采集或页面中的可复现问题。
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请先查看[常见问题](https://github.com/dingxiaopi/aibibi/blob/main/public-docs/troubleshooting.md)。
+        此处公开可见，请勿粘贴密钥、完整配置、真实库存导出或用户反馈数据。
+        安全漏洞请按 [SECURITY.md](https://github.com/dingxiaopi/aibibi/blob/main/SECURITY.md) 私下反馈。
+  - type: dropdown
+    id: area
+    attributes:
+      label: 问题发生在哪一步？
+      options:
+        - 安装或启动 demo
+        - 本地实例初始化
+        - Cloudflare 部署
+        - 原店采集或分类审核
+        - 导出或推送
+        - 页面或公开 API
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 使用的版本或提交
+      placeholder: 例如 v0.1.0，或 git rev-parse --short HEAD 的结果
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 运行环境
+      description: 操作系统、node --version、python3 --version；页面问题另附浏览器版本。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤、预期结果与实际结果
+      description: 尽量使用 demo 或脱敏样本复现；命令中的密钥请替换为变量名。
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 脱敏后的错误摘要
+      description: 只保留相关错误；删除 Authorization、密码、API Key 和个人信息。
+      render: text

@@ -7,7 +7,7 @@ Python 采集与审核 · React + Vite 前端 · Cloudflare Workers + D1 · MIT
 [![Quality](https://github.com/dingxiaopi/aibibi/actions/workflows/quality.yml/badge.svg)](https://github.com/dingxiaopi/aibibi/actions/workflows/quality.yml)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-[AI比比网站](https://aibibi.app) · [部署说明](public-docs/deployment.md) · [贡献指南](CONTRIBUTING.md)
+[AI比比网站](https://aibibi.app) · [部署说明](public-docs/deployment.md) · [常见问题](public-docs/troubleshooting.md) · [贡献指南](CONTRIBUTING.md)
 
 ## 先运行演示
 
@@ -86,6 +86,7 @@ npm run build
 - [实例配置](public-docs/configuration.md)
 - [部署与演示](public-docs/deployment.md)
 - [采集与适配器贡献](public-docs/collectors.md)
+- [常见问题与反馈](public-docs/troubleshooting.md)
 - [首次公开发布](public-docs/release.md)
 - [贡献指南](CONTRIBUTING.md) · [安全反馈](SECURITY.md)
 

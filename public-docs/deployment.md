@@ -22,8 +22,8 @@ noindex. Demo initialization refreshes only its own synthetic fixture rows.
 
 ## Your own instance
 
-From the root, create `.local/` and copy the site and collector configuration
-examples there as described in `configuration.md`. Initialize your source list.
+From the root, follow the copy commands in [configuration](configuration.md),
+replace the disabled source placeholders, and initialize your source list.
 Then prepare your own Cloudflare resources using the commands below. These are
 manual deployment instructions, not commands executed by CI.
 
@@ -78,3 +78,6 @@ Price updates run collection and push data; no Worker deployment is needed.
 Code or site-configuration changes require a new frontend/Worker build and deploy.
 Public data caches can delay visibility; a successful collection alone is not
 proof that every transfer batch was received.
+
+For installation, initialization, missing quotes or transfer errors, see
+[常见问题与反馈](troubleshooting.md).

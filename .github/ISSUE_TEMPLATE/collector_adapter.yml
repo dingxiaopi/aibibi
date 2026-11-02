@@ -1,0 +1,36 @@
+name: 采集器适配 / Collector adapter
+description: 申请适配一种原店系统，或反馈现有解析器的问题。
+title: "[Collector] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请先阅读[适配器约定](https://github.com/dingxiaopi/aibibi/blob/main/public-docs/collectors.md)。
+        这里用于讨论解析代码，不会自动把店铺或报价加入 AI比比的生产站。
+        不接受竞品清单、报价数据或需要绕过登录、验证码、WAF 的采集方案。
+  - type: input
+    id: platform
+    attributes:
+      label: 原店系统或适配器类型
+      placeholder: 例如独立发卡站、现有 acg 解析器
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: 需要支持或修复什么？
+      description: 说明货架、详情、价格、库存或多规格中哪一步不符合预期。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 公开接口结构或脱敏的最小样本
+      description: 优先使用虚构数据保留字段结构，不上传完整真实货架、Cookie 或凭据。可选提供你有权分享的原店公开页面链接。
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: 已做的验证
+      description: 例如完整/不完整货架、缺货与未知库存、多规格、失败响应；尚未验证的部分也请说明。
