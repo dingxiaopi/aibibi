@@ -1,7 +1,8 @@
 # Deployment
 
 The website runs on Cloudflare Workers with D1 and bundled static assets.
-Collection runs on your own macOS/Linux computer or server. No Supabase, queue,
+Collection runs on your own macOS/Linux computer or server, or through the optional
+[private GitHub Actions workflow](github-actions.md). No Supabase, queue,
 paid AI service or permanently running web server is required to try the demo.
 
 ## Demo

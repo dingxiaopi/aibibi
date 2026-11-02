@@ -48,17 +48,49 @@
 先在本地准备已经完成分类的实例数据，保留真实采集时间。状态文件格式与普通采集器相同。
 加密工具额外使用 Python 3.11 和 `requirements.txt` 中固定的可选依赖，普通本地采集不需要它。
 
+以下命令在代码仓库根目录执行。先准备隔离虚拟环境和本地密钥文件；密钥生成命令只创建新文件，文件已存在时停止，不在终端显示密钥：
+
 ```sh
-python3.11 -m pip install -r ops/github-actions/requirements.txt
-python3.11 -m collector.actions_state prepare \
-  --directory /private/path/to/instance-data \
-  --archive /private/path/to/state-repo/profiles/production.bin \
-  --profile production \
-  --target https://your-instance.example
+python3.11 -m venv .local/actions-venv
+.local/actions-venv/bin/python -m pip install -r ops/github-actions/requirements.txt
+.local/actions-venv/bin/python - <<'PYTHON'
+import base64
+import os
+import secrets
+from pathlib import Path
+
+path = Path('.local/actions-state.key')
+fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+with os.fdopen(fd, 'w') as file:
+    file.write(base64.b64encode(secrets.token_bytes(32)).decode() + '\n')
+print('Created private state key; its value was not printed.')
+PYTHON
 ```
 
-上面的命令从环境变量读取 `COLLECTOR_STATE_KEY`，只创建新 archive，不修改源数据或覆盖旧 archive。
+把下面 `--directory` 改为自己已审核的实例数据目录，`--archive` 改为自己私有状态仓库中的新文件，
+`--target` 改为自己的 Worker origin。子 shell 只在本次命令内加载密钥：
+
+```sh
+(
+  export COLLECTOR_STATE_KEY="$(cat .local/actions-state.key)"
+  .local/actions-venv/bin/python -m collector.actions_state prepare \
+    --directory /private/path/to/instance-data \
+    --archive /private/path/to/state-repo/profiles/production.bin \
+    --profile production \
+    --target https://your-instance.example
+)
+```
+
+`prepare` 从环境变量读取密钥，只创建新 archive，不修改源数据或覆盖旧 archive。
 将生成的 `profiles/production.bin` 提交到私有仓库，明文目录、密钥和凭据不要提交。
+若使用已登录的 GitHub CLI，可从文件通过 stdin 设置状态仓库的密钥：
+
+```sh
+gh secret set COLLECTOR_STATE_KEY --repo YOUR_OWNER/YOUR_PRIVATE_STATE_REPO < .local/actions-state.key
+```
+
+`BIJIA_INGEST_TOKEN` 仍在私有仓库 Secrets 页面配置为目标实例的采集令牌。
+密钥文件需要单独保留私有备份；运行时 Secrets 和本地 `prepare` 必须使用同一把密钥。
 
 `sample` profile 需要用独立的少量店铺数据建立；它不会自动从 production 随机抽样。
 `hosted` 是可选的独立来源子集，供托管 runner 使用；必须由运营者显式选定来源并准备状态。
@@ -106,6 +138,9 @@ python3.11 -m collector.actions_state prepare \
 - 状态解密失败会停止，且不会将空目录重新加密覆盖原状态。
 - 工作流日志和 Summary 只输出数量、阶段、时间和推送进度，不输出原店身份与描述。
   详细诊断保存在加密状态中，不作为普通 artifact 上传。
+
+每个 profile 独立保存状态。有重叠店铺的 sample/hosted/production 不能视为自动同步的副本；
+重新试跑样本前，应从日常 profile 的最新数据派生，不要用旧样本写回更新后的实例。
 
 私有状态仓库应作为 Actions 采集的权威状态。切回本机运行前，先停止其他任务、恢复最新状态，
 不要让本机旧快照与云端采集同时写入。云端采集不自动回写自己电脑上的历史备份。
