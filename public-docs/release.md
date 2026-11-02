@@ -1,22 +1,33 @@
-# Preparing the first GitHub publication
+# 版本发布流程
 
-Use a fresh source export for a repository that previously contained production
-data. `.gitignore` does not remove data from historical Git commits.
+## 首次公开仓库
+
+若原仓库历史包含生产数据，应先生成独立公开导出；`.gitignore` 不会清除旧 Git 历史：
 
 ```sh
 python3 scripts/export_public.py --output /absolute/path/aibibi-public
 ```
 
-The exporter uses an allowlist, refuses existing destinations and excludes Git
-history, instance configuration, real seeds/snapshots, legacy static output,
-credentials, raw captures, internal handoffs and build products. It includes
-public docs, synthetic demo code, starter specifications and existing third-party
-license notices. It does not create a Git repository, commit or upload anything.
+导出使用允许清单，拒绝覆盖现有目标，排除 Git 历史、实例配置、真实 seeds/snapshot、凭据、
+原始采集、内部交接和构建产物。包含公开文档、虚构演示、通用规格及第三方授权说明。
+导出工具本身不建仓库、不提交、不上传。不要将旧私有仓库历史推送到公开仓库。
 
-Before publication, verify the exported tree, install and run its checks and demo,
-and review the MIT license plus separate data and trademark notices. A fresh
-export avoids publishing the old repository's history; it is not a forensic
-audit of every historical secret. Rotate any credential known to have leaked.
+## 后续版本
 
-Create a new GitHub repository named `aibibi` only after reviewing that exact
-export. Do not push the original private repository history by accident.
+1. 在公开仓库准备变更与发布说明，通过 PR 的 Quality 检查，再合入主分支。
+2. 从干净克隆验证安装、测试、构建、演示和新实例初始化。涉及 Actions 时，验证独立密钥的状态加密/恢复及模板配置，真实采集只在自己的私有运行仓库进行。
+3. 对最终完整提交 SHA 再做允许清单导出；检查源码包不含实例数据、密钥、私有密文或构建产物。
+4. 使用该提交创建不可变版本标签，打包源码并生成校验和；Release 指向同一标签，附上源码包与 SHA256SUMS.txt。
+5. 下载已发布附件再核对校验和、包内文件清单和标签对应的源码，确认 Release 已发布。
+
+例如，已验证的源码目录可以这样打包；应从导出目录的父目录执行：
+
+```sh
+python3 -m zipfile -c aibibi-v0.2.0-source.zip aibibi-v0.2.0
+shasum -a 256 aibibi-v0.2.0-source.zip > SHA256SUMS.txt
+```
+
+发布说明需要交代具体变更、验证结果、升级步骤和实际限制。源码版本发布与线上数据更新、Worker 部署分别进行。
+已发布标签和附件不覆盖修改；修复内容通过后续版本发布。
+
+当前版本说明：[v0.2.0](releases/v0.2.0.md)。
