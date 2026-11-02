@@ -24,6 +24,7 @@ FILES = (
     'exports/external-batch.json',
 )
 REQUIRED = {'instance.json', 'seeds.json', 'snapshot.json'}
+PROFILES = ('sample', 'hosted', 'production')
 
 
 class StateError(ValueError):
@@ -41,7 +42,7 @@ def key_from_env():
 
 
 def context(profile):
-    if profile not in ('sample', 'production'):
+    if profile not in PROFILES:
         raise StateError('Unknown state profile')
     return MAGIC + b'/' + profile.encode('ascii')
 
@@ -194,7 +195,7 @@ def main():
     parser.add_argument('command', choices=['prepare', 'seal', 'restore'])
     parser.add_argument('--directory', type=Path, required=True)
     parser.add_argument('--archive', type=Path, required=True)
-    parser.add_argument('--profile', choices=['sample', 'production'], required=True)
+    parser.add_argument('--profile', choices=PROFILES, required=True)
     parser.add_argument('--target', help='HTTPS instance origin, required when preparing a new profile')
     args = parser.parse_args()
     try:

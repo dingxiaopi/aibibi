@@ -130,6 +130,19 @@ class EncryptedStateTests(unittest.TestCase):
             with self.assertRaises(StateError):
                 prepare(source, archive, 'production', key, 'https://new.test')
 
+    def test_hosted_profile_is_bound_and_cannot_replace_complete_production_state(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = self.fixture(root / 'source')
+            key = AESGCM.generate_key(bit_length=256)
+            prepare(source, root / 'hosted.bin', 'hosted', key, 'https://example.test')
+            restore(root / 'hosted.bin', root / 'hosted', 'hosted', key)
+            self.assertEqual(json.loads((root / 'hosted/instance.json').read_text())['profile'], 'hosted')
+            for profile in ('sample', 'production', '../hosted'):
+                with self.assertRaises(StateError):
+                    restore(root / 'hosted.bin', root / 'wrong', profile, key)
+                self.assertFalse((root / 'wrong').exists())
+
     def test_history_compaction_preserves_observations_and_does_not_modify_source(self):
         import sqlite3
         with tempfile.TemporaryDirectory() as directory:
