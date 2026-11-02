@@ -1,0 +1,23 @@
+name: 功能建议 / Feature request
+description: 说明一个使用场景，以及当前流程有什么不足。
+title: "[Feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你想完成什么？目前遇到了什么困难？
+      description: 可以从自部署、日常更新或浏览比价的具体场景说起。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 期望的行为
+      description: 描述怎样的操作和结果能解决问题；也可以说明已有的替代做法。
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 适用范围
+      description: 例如仅自己的实例需要，还是其他部署者也可能需要。

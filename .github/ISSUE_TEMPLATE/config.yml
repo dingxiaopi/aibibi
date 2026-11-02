@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 部署与常见问题
+    url: https://github.com/dingxiaopi/aibibi/blob/main/public-docs/troubleshooting.md
+    about: 先查安装、初始化、报价未显示和推送问题。
+  - name: 安全漏洞反馈
+    url: https://github.com/dingxiaopi/aibibi/blob/main/SECURITY.md
+    about: 请勿在公开 Issue 中提交密钥或漏洞利用细节。
