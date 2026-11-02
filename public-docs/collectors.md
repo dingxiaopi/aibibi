@@ -1,5 +1,7 @@
 # Collecting and adding adapters
 
+首次采集没有报价时，先完成[第一条真实报价教程](first-quote.md)中的详情审核与规格映射。人工审核可不配置 AI。
+
 ## Run an instance
 
 After initialization, run these from the repository root:

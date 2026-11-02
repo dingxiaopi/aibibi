@@ -7,7 +7,7 @@ Python 采集与审核 · React + Vite 前端 · Cloudflare Workers + D1 · MIT
 [![Quality](https://github.com/dingxiaopi/aibibi/actions/workflows/quality.yml/badge.svg)](https://github.com/dingxiaopi/aibibi/actions/workflows/quality.yml)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-[v0.2.0 发布说明](public-docs/releases/v0.2.0.md) · [AI比比网站](https://aibibi.app) · [部署说明](public-docs/deployment.md) · [常见问题](public-docs/troubleshooting.md) · [贡献指南](CONTRIBUTING.md)
+[从零到第一条真实报价](public-docs/first-quote.md) · [v0.3.0 发布说明](public-docs/releases/v0.3.0.md) · [AI比比网站](https://aibibi.app) · [部署说明](public-docs/deployment.md) · [常见问题](public-docs/troubleshooting.md)
 
 ## 先运行演示
 
@@ -61,8 +61,8 @@ npm run demo
 
 ## 自己部署
 
-从 [配置说明](public-docs/configuration.md) 开始：准备自己的来源清单，初始化实例，配置自己的 Cloudflare D1、Worker 和密钥。
-完整步骤见 [部署说明](public-docs/deployment.md)。
+第一次安装请按[从零到第一条真实报价](public-docs/first-quote.md)完成本地实例、原店采集、首次审核和推送验收，再部署自己的 Cloudflare D1、Worker 和密钥。
+首次审核可人工完成，不要求 AI Key；日常 Actions 只更新已有映射，不自动批准新商品。配置字段见[配置说明](public-docs/configuration.md)，线上步骤见[部署说明](public-docs/deployment.md)。
 
 默认的 `.local/data/` 保存店铺配置、审核映射、排除记录、采集快照与运行状态，不提交 Git。
 仓库包含通用规格定义和虚构演示数据，不包含原运营实例的完整店铺与报价数据。
@@ -84,6 +84,7 @@ npm run build
 ## 文档
 
 - [架构与数据边界](public-docs/architecture.md)
+- [从零到第一条真实报价](public-docs/first-quote.md)
 - [实例配置](public-docs/configuration.md)
 - [部署与演示](public-docs/deployment.md)
 - [采集与适配器贡献](public-docs/collectors.md)
