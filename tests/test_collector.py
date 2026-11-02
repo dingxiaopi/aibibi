@@ -119,13 +119,33 @@ class CollectorTests(unittest.TestCase):
             return fake(endpoint, payload)
         third = collect(conf, second, fetch=returned, pause=lambda _: None)
         self.assertNotIn('goods/detail', calls)
-        self.assertEqual(third['quotes'], [])
+        self.assertEqual(third['quotes'], second['quotes'])
+        self.assertEqual(third['stats']['ready_quotes'], 0)
         self.assertEqual(third['review_items'], [])
         fourth = collect(conf, second, fetch=missing, pause=lambda _: None)
-        self.assertEqual(fourth['quotes'], [])
+        self.assertEqual(fourth['quotes'], second['quotes'])
         def failure(*args):
             raise TimeoutError('timeout')
-        self.assertEqual(collect(conf, second, fetch=failure, pause=lambda _: None)['quotes'], [])
+        self.assertEqual(collect(conf, second, fetch=failure, pause=lambda _: None)['quotes'], second['quotes'])
+
+    def test_probe_retirement_survives_later_updates_without_refreshing_time_or_other_scope(self):
+        conf = copy.deepcopy(CONFIG)
+        first = collect(conf, {}, fetch=fake, pause=lambda _: None)
+        def missing(endpoint, payload):
+            return {'list': []} if endpoint == 'goods/list' else fake(endpoint, payload)
+        probe = collect(conf, first, fetch=missing, pause=lambda _: None)
+        retire_unlisted(conf, probe)
+        after = collect(conf, probe, fetch=missing, pause=lambda _: None)
+        again = collect(conf, after, fetch=missing, pause=lambda _: None)
+        self.assertEqual(again['quotes'], probe['quotes'])
+        self.assertEqual(again['quotes'][0]['checked_at'], first['quotes'][0]['checked_at'])
+        self.assertEqual(again['stats']['ready_quotes'], 0)
+        outside = copy.deepcopy(probe)
+        outside['quotes'][0]['shop_id'] = 'outside'
+        self.assertEqual(collect(conf, outside, fetch=missing, pause=lambda _: None)['quotes'], [])
+        mismatched = copy.deepcopy(conf)
+        mismatched['exclusions']['S12345:G12345']['confirmed_at'] = 'different-time'
+        self.assertEqual(collect(mismatched, probe, fetch=missing, pause=lambda _: None)['quotes'], [])
 
     def test_transient_failure_partial_shelf_and_sold_out_do_not_retire_monitors(self):
         conf = copy.deepcopy(CONFIG)
