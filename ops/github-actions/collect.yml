@@ -7,7 +7,7 @@ on:
       profile:
         description: Collector state profile
         type: choice
-        options: [sample, hosted, production]
+        options: [sample, hosted, vps_sample, vps, production]
         default: sample
       mode:
         description: Probe only; update publishes; resume continues; restart abandons unfinished progress and publishes a new round
@@ -25,12 +25,22 @@ concurrency:
 jobs:
   collect:
     if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
-    runs-on: ${{ fromJSON(vars.COLLECTOR_RUNNER_LABELS || '["ubuntu-latest"]') }}
+    runs-on: ${{ fromJSON(startsWith(inputs.profile, 'vps') && (vars.COLLECTOR_VPS_RUNNER_LABELS || '["self-hosted","aibibi-vps"]') || (vars.COLLECTOR_RUNNER_LABELS || '["ubuntu-latest"]')) }}
     timeout-minutes: 120
     env:
       PROFILE: ${{ inputs.profile }}
       MODE: ${{ inputs.mode }}
     steps:
+      - name: Refuse to overwrite retained private work
+        if: startsWith(inputs.profile, 'vps')
+        run: |
+          python3 - <<'PYTHON'
+          import os
+          from pathlib import Path
+          data = Path(os.environ['GITHUB_WORKSPACE']) / 'app/.local/data'
+          if data.exists() or data.is_symlink():
+              raise SystemExit('Private work remains from an earlier job. Recover or verify its encrypted save before starting another job.')
+          PYTHON
       - name: Check out private encrypted state
         uses: actions/checkout@v4
         with:
@@ -76,6 +86,7 @@ jobs:
           COLLECTOR_STATE_KEY: ${{ secrets.COLLECTOR_STATE_KEY }}
         run: python3 -m collector.actions_state seal --archive "../state/profiles/$PROFILE.bin" --directory .local/data --profile "$PROFILE"
       - name: Persist encrypted state
+        id: persist
         if: always() && steps.seal.outcome == 'success'
         working-directory: state
         run: |
@@ -86,3 +97,16 @@ jobs:
             git commit -m "Save $PROFILE collector state (run $GITHUB_RUN_ID)"
             git push origin HEAD:main
           fi
+      - name: Remove plaintext only after durable encrypted save
+        if: always() && startsWith(inputs.profile, 'vps') && steps.persist.outcome == 'success'
+        run: |
+          python3 - <<'PYTHON'
+          import os
+          import shutil
+          from pathlib import Path
+          data = Path(os.environ['GITHUB_WORKSPACE']) / 'app/.local/data'
+          if data.is_symlink():
+              raise SystemExit('Refusing a symlink at the private work directory.')
+          if data.exists():
+              shutil.rmtree(data)
+          PYTHON

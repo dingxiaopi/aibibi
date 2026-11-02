@@ -24,7 +24,7 @@ FILES = (
     'exports/external-batch.json',
 )
 REQUIRED = {'instance.json', 'seeds.json', 'snapshot.json'}
-PROFILES = ('sample', 'hosted', 'production')
+PROFILES = ('sample', 'hosted', 'vps_sample', 'vps', 'production')
 
 
 class StateError(ValueError):
