@@ -58,14 +58,17 @@ class InstanceTests(unittest.TestCase):
                          '.env.ai-review', 'cloudflare/.dev.vars', 'cloudflare/.dev.vars.example',
                          'cloudflare/wrangler.local.jsonc', 'cloudflare/public/app.js',
                          'cloudflare/src/index.ts', 'cloudflare/.local/site.json',
-                         'cloudflare/node_modules/package/index.js', '.git/config', 'docs/private.md']:
+                         'cloudflare/node_modules/package/index.js', '.git/config', 'docs/private.md',
+                         '.github/ISSUE_TEMPLATE/bug_report.yml', '.github/PULL_REQUEST_TEMPLATE.md',
+                         '.github/ISSUE_TEMPLATE/private-draft.md']:
                 path = source / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(name)
             export_public(source, target)
             files = {p.relative_to(target).as_posix() for p in target.rglob('*') if p.is_file()}
             self.assertEqual(files, {'LICENSE', 'README.md', 'config/site.json', 'collector/collect.py',
-                                     'cloudflare/.dev.vars.example', 'cloudflare/src/index.ts'})
+                                     'cloudflare/.dev.vars.example', 'cloudflare/src/index.ts',
+                                     '.github/ISSUE_TEMPLATE/bug_report.yml', '.github/PULL_REQUEST_TEMPLATE.md'})
             with self.assertRaisesRegex(ValueError, 'overwrite'):
                 export_public(source, target)
 

@@ -15,6 +15,11 @@ CF_ROOT = {'package.json', 'package-lock.json', 'wrangler.jsonc', 'vite.config.t
            'README.md', '.gitignore', '.dev.vars.example'}
 BLOCKED = {'node_modules', '.git', '.local', '.runtime', '.collection', '.generated',
            '.wrangler', '__pycache__', '.DS_Store'}
+GITHUB_FILES = {
+    '.github/workflows/quality.yml', '.github/PULL_REQUEST_TEMPLATE.md',
+    '.github/ISSUE_TEMPLATE/config.yml', '.github/ISSUE_TEMPLATE/bug_report.yml',
+    '.github/ISSUE_TEMPLATE/collector_adapter.yml', '.github/ISSUE_TEMPLATE/feature_request.yml',
+}
 
 
 def included(path):
@@ -27,7 +32,7 @@ def included(path):
         return False
     top, *rest = path.parts
     if top == '.github':
-        return name == '.github/workflows/quality.yml'
+        return name in GITHUB_FILES
     if top == 'config':
         return len(rest) == 1 and rest[0] in {'site.json', 'catalog.json', 'sources.example.json', 'collector.example.json'}
     if top == 'collector':
