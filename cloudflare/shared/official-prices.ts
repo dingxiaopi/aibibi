@@ -1,7 +1,20 @@
 import data from "./official-prices.json";
 import { SITE_NAME } from "./site";
 
-/** Written by `python3 -m collector.official_prices`; App Store in-app prices per storefront. */
+export type OfficialChannel = "ios" | "web" | "google_play";
+export type ChannelFilter = OfficialChannel | "all";
+export type TaxBasis = "inclusive" | "exclusive" | "unknown";
+export const CHANNEL_NAMES: Record<OfficialChannel, string> = {
+  ios: "App Store",
+  web: "官网直购",
+  google_play: "Google Play",
+};
+export const TAX_NAMES: Record<TaxBasis, string> = {
+  inclusive: "含税",
+  exclusive: "未税 · 结账可能加税",
+  unknown: "标价 · 税费以结账为准",
+};
+/** Written by `python3 -m collector.official_prices`; direct official sources only. */
 export type OfficialPrice = {
   app: string;
   plan: string;
@@ -13,6 +26,14 @@ export type OfficialPrice = {
   display_price?: string;
   cny?: number;
   usd?: number;
+  channel?: OfficialChannel;
+  tax?: TaxBasis;
+  pretax_price?: number;
+  tax_percent?: number;
+  observed_at?: string;
+  attempted_at?: string;
+  stale?: boolean;
+  error?: string;
 };
 export type OfficialPlan = {
   app: string;
@@ -35,10 +56,102 @@ export type OfficialData = {
   plans: OfficialPlan[];
   regions: OfficialRegion[];
   prices: OfficialPrice[];
-  failures: { app: string; region: string; error: string }[];
+  failures: {
+    app: string;
+    region: string;
+    channel?: OfficialChannel;
+    attempted_at?: string;
+    error: string;
+  }[];
 };
 
 export const official = data as OfficialData;
+export const priceChannel = (row: OfficialPrice) => row.channel || "ios";
+export const priceTax = (row: OfficialPrice) => row.tax || "unknown";
+/** Return only an explicitly published amount; never reverse-calculate a tax. */
+export function taxPrice(row: OfficialPrice, basis: TaxBasis) {
+  if (priceTax(row) === basis) return row.price;
+  return basis === "exclusive" ? row.pretax_price : undefined;
+}
+export function amountCny(row: OfficialPrice, amount: number) {
+  if (amount === row.price && row.cny != null) return row.cny;
+  const rate = official.fx.rates[row.currency || ""];
+  const cnyRate = official.fx.rates.CNY;
+  return rate > 0 && cnyRate > 0
+    ? Math.round((amount / rate) * cnyRate * 100) / 100
+    : null;
+}
+export const observedAt = (row: OfficialPrice) =>
+  row.observed_at || official.collected_at;
+export const isOldPrice = (row: OfficialPrice, now = Date.now()) =>
+  Boolean(row.stale) ||
+  !Number.isFinite(Date.parse(observedAt(row))) ||
+  Date.parse(observedAt(row)) > now + 60000 ||
+  now - Date.parse(observedAt(row)) > 7 * 86400000;
+export function priceRows(
+  app: string,
+  plan: string,
+  channel: ChannelFilter = "all",
+) {
+  return official.prices.filter(
+    (p) =>
+      p.app === app &&
+      p.plan === plan &&
+      p.status === "ok" &&
+      p.cny != null &&
+      (channel === "all" || priceChannel(p) === channel),
+  );
+}
+export type OfficialSort =
+  "region" | "ios" | "web_inclusive" | "web_exclusive" | "web_unknown";
+export function sortPrice(
+  row: OfficialPrice,
+  sort: OfficialSort,
+): number | null {
+  if (row.status !== "ok" || isOldPrice(row)) return null;
+  if (sort === "ios")
+    return priceChannel(row) === "ios" && Number.isFinite(row.cny)
+      ? row.cny!
+      : null;
+  if (priceChannel(row) !== "web" || sort === "region") return null;
+  const basis =
+    sort === "web_inclusive"
+      ? "inclusive"
+      : sort === "web_exclusive"
+        ? "exclusive"
+        : "unknown";
+  const amount = taxPrice(row, basis);
+  const value = amount == null ? null : amountCny(row, amount);
+  return value != null && Number.isFinite(value) ? value : null;
+}
+/** A missing/expired sort price stays last in either direction. Equal prices retain region order. */
+export function sortedRegions(
+  rows: OfficialPrice[],
+  sort: OfficialSort,
+  direction: "asc" | "desc",
+) {
+  const regions = official.regions.filter((region) =>
+    rows.some((r) => r.region === region.code),
+  );
+  if (sort === "region") return regions;
+  const values = new Map(
+    regions.map((region) => {
+      const value =
+        rows
+          .filter((r) => r.region === region.code)
+          .map((r) => sortPrice(r, sort))
+          .find((v) => v != null) ?? null;
+      return [region.code, value] as const;
+    }),
+  );
+  return [...regions].sort((a, b) => {
+    const av = values.get(a.code),
+      bv = values.get(b.code);
+    if (av == null) return bv == null ? 0 : 1;
+    if (bv == null) return -1;
+    return direction === "asc" ? av - bv : bv - av;
+  });
+}
 /** Catalog category / brand icon for each app. */
 export const OFFICIAL_CATEGORY: Record<string, string> = {
   chatgpt: "gpt",
@@ -71,29 +184,46 @@ export type RankedPrice = OfficialPrice & {
   vs_us: number | null;
 };
 /** Matched prices of one plan, cheapest first. */
-export function rankedPrices(app: string, plan: string): RankedPrice[] {
-  const rows = official.prices.filter(
+export function rankedPrices(
+  app: string,
+  plan: string,
+  channel: ChannelFilter = "ios",
+): RankedPrice[] {
+  const rows = priceRows(app, plan, channel).filter(
     (p): p is OfficialPrice & { cny: number } =>
-      p.app === app && p.plan === plan && p.status === "ok" && p.cny != null,
+      !isOldPrice(p) && p.cny != null,
   );
-  const us = rows.find((p) => p.region === "us")?.cny;
   return rows
-    .map((p) => ({
-      ...p,
-      vs_us: us ? Math.round((p.cny / us - 1) * 100) : null,
-    }))
+    .map((p) => {
+      const us =
+        priceTax(p) !== "unknown"
+          ? rows.find(
+              (r) =>
+                r.region === "us" &&
+                priceChannel(r) === priceChannel(p) &&
+                priceTax(r) === priceTax(p),
+            )?.cny
+          : null;
+      return { ...p, vs_us: us ? Math.round((p.cny / us - 1) * 100) : null };
+    })
     .sort((a, b) => a.cny - b.cny);
 }
 /** Regions whose store page was unavailable for this app (e.g. not listed there). */
 export const unavailableRegions = (app: string) =>
-  official.failures.filter((f) => f.app === app).map((f) => f.region);
+  official.failures
+    .filter(
+      (f) =>
+        f.app === app &&
+        ((f as { channel?: string }).channel || "ios") === "ios",
+    )
+    .map((f) => f.region);
 /** Title/description for /official pages; null when the path is not one. */
 export function officialMeta(pathname: string) {
   const regions = official.regions.length;
   if (pathname === "/official")
     return {
-      title: `AI 订阅官方价格 · ChatGPT / Claude / Gemini / Grok 各国 App Store 价格对比 · ${SITE_NAME}`,
-      description: `ChatGPT Plus、Claude Pro、Google AI Pro、SuperGrok 在美国、菲律宾、土耳其、日本等 ${regions} 个地区 App Store 的官方订阅价格，统一换算人民币，看哪个地区最便宜。`,
+      title: `AI 订阅官方价格 · 官网与 App Store 各地区价格对比 · ${SITE_NAME}`,
+      description: `ChatGPT、Claude、Gemini、Grok 在 ${regions} 个地区的官方订阅报价，区分官网与 App Store、含税与未税价格，附官方来源和真实采集时间。`,
     };
   const app = pathname.startsWith("/official/")
     ? officialApp(pathname.slice(10))
@@ -101,7 +231,6 @@ export function officialMeta(pathname: string) {
   if (!app) return null;
   const plans = officialPlans(app.id);
   const headline = plans.find((p) => p.id === HEADLINE_PLAN[app.id])!;
-  const cheapest = rankedPrices(app.id, headline.id)[0];
   // The headline plan leads the title; it is what most people search for.
   const monthly = plans.filter((p) => p.period === "month");
   const titled = [headline, ...monthly.filter((p) => p !== headline)];
@@ -109,12 +238,12 @@ export function officialMeta(pathname: string) {
     title: `${app.name} 官方价格 · ${titled
       .slice(0, 3)
       .map((p) => p.label)
-      .join(" / ")} 各国 App Store 价格对比 · ${SITE_NAME}`,
-    description: `${plans.map((p) => p.label).join("、")} 在 ${regions} 个地区 App Store 的官方价格，换算人民币排名${cheapest ? `；${headline.label} 最便宜是${regionName(cheapest.region)}区，约 ${cny(cheapest.cny)}/月` : ""}。`,
+      .join(" / ")} 官网与 App Store 价格对比 · ${SITE_NAME}`,
+    description: `${plans.map((p) => p.label).join("、")} 在 ${regions} 个地区的官网与 App Store 官方报价，分渠道、税费口径展示，附官方依据及更新时间。`,
   };
 }
 export const cny = (value: number) =>
-  `¥${value.toLocaleString("zh-CN", { maximumFractionDigits: value < 100 ? 2 : 0 })}`;
+  `¥${value.toLocaleString("zh-CN", { maximumFractionDigits: 2 })}`;
 
 /**
  * Catalog SKUs that sell the same plan and billing period as an App Store plan.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect official App Store in-app subscription prices per region. Python stdlib only.
+"""Collect official App Store and web subscription prices. Python stdlib only.
 
 Reads the public App Store product page of each app in each storefront, takes the
 embedded in-app purchase list ("addOns"), and matches it to known plans. A plan
@@ -45,6 +45,8 @@ PLANS = [
     {'app': 'gemini', 'id': 'plus-month', 'label': 'Google AI Plus', 'period': 'month', 'name': r'^Google AI Plus\b', 'offer': r'^com\.google\.gemini\.helium\.m(\.|$)'},
     {'app': 'gemini', 'id': 'pro-month', 'label': 'Google AI Pro', 'period': 'month', 'name': r'^Google AI Pro\b', 'offer': r'^com\.google\.gemini\.(2tb\.ai|ai\.2tb)\.m(\.|$)'},
     {'app': 'gemini', 'id': 'ultra-month', 'label': 'Google AI Ultra', 'period': 'month', 'name': r'^Google AI Ultra\b', 'offer': r'^com\.google\.gemini\.30tb\.ai\.pro\.m(\.|$)'},
+    {'app': 'gemini', 'id': 'ultra5-month', 'label': 'Google AI Ultra 5x', 'period': 'month', 'channels': ['web']},
+    {'app': 'gemini', 'id': 'ultra20-month', 'label': 'Google AI Ultra 20x', 'period': 'month', 'channels': ['web']},
     {'app': 'grok', 'id': 'lite-month', 'label': 'SuperGrok Lite', 'period': 'month', 'name': r'^SuperGrok Lite$', 'offer': r'\.monthly\.'},
     {'app': 'grok', 'id': 'super-month', 'label': 'SuperGrok', 'period': 'month', 'name': r'^SuperGrok$', 'offer': r'\.monthly\.'},
     {'app': 'grok', 'id': 'super-year', 'label': 'SuperGrok 年付', 'period': 'year', 'name': r'^SuperGrok$', 'offer': r'\.yearly\.'},
@@ -146,18 +148,19 @@ def unmatched(plans, items):
             and not any(re.search(x, i['name']) for x in NOT_PLANS)}
 
 
-def collect(fetch_page=fetch, fx=None, pause=time.sleep, progress=None):
+def collect(fetch_page=fetch, fx=None, pause=time.sleep, progress=None, apps=None, regions=None):
     fx = fx or fx_rates()
     prices, failures, unknown = [], [], {}
-    for app in APPS:
-        plans = [p for p in PLANS if p['app'] == app['id']]
-        for region in REGIONS:
+    stamp = now()
+    for app in APPS if apps is None else apps:
+        plans = [p for p in PLANS if p['app'] == app['id'] and 'ios' in p.get('channels', ['ios'])]
+        for region in REGIONS if regions is None else regions:
             url = store_url(app, region)
             try:
                 final_url, html = fetch_page(url, {'x-apple-store-front': region['storefront'] + ',29'})
                 items = parse_add_ons(html, app, region, final_url)
             except Exception as error:  # one failed page must not drop the other regions
-                failures.append({'app': app['id'], 'region': region['code'], 'error': str(error)[:200]})
+                failures.append({'app': app['id'], 'region': region['code'], 'channel': 'ios', 'attempted_at': stamp, 'error': str(error)[:200]})
                 if progress:
                     progress(app['id'], region['code'], 'failed')
                 continue
@@ -165,7 +168,8 @@ def collect(fetch_page=fetch, fx=None, pause=time.sleep, progress=None):
                 unknown.setdefault(app['id'], {}).setdefault(name, []).append(region['code'])
             for plan in plans:
                 status, item, candidates = match_plan(plan, items)
-                row = {'app': app['id'], 'plan': plan['id'], 'region': region['code'], 'status': status, 'source_url': url}
+                row = {'app': app['id'], 'plan': plan['id'], 'region': region['code'], 'status': status, 'source_url': url,
+                       'channel': 'ios', 'tax': 'unknown', 'observed_at': stamp, 'attempted_at': stamp, 'stale': False}
                 if item:
                     row.update({'price': item['price'], 'currency': region['currency'], 'display_price': item['display_price'],
                                 'cny': convert(item['price'], region['currency'], fx, 'CNY'),
@@ -178,11 +182,11 @@ def collect(fetch_page=fetch, fx=None, pause=time.sleep, progress=None):
             pause(1)
     return {
         'schema_version': 1,
-        'collected_at': now(),
+        'collected_at': stamp,
         'source': 'App Store 公开商品页的应用内购买价格',
         'fx': fx,
         'apps': [{k: a[k] for k in ('id', 'name', 'provider', 'app_store_id')} for a in APPS],
-        'plans': [{k: p[k] for k in ('app', 'id', 'label', 'period')} for p in PLANS],
+        'plans': [{k: p[k] for k in ('app', 'id', 'label', 'period', 'channels') if k in p} for p in PLANS],
         'regions': [{k: r[k] for k in ('code', 'name', 'currency')} for r in REGIONS],
         'prices': prices,
         'failures': failures,
@@ -190,25 +194,92 @@ def collect(fetch_page=fetch, fx=None, pause=time.sleep, progress=None):
     }
 
 
+def refresh(previous=None, channels=('ios', 'web'), apps=None, regions=None,
+            fetch_page=fetch, fx=None, pause=time.sleep, progress=None, evidence=None):
+    """Merge only requested sources; failed sources retain old observations, marked stale."""
+    from .official_web import collect_web
+    previous = previous or {}
+    apps = APPS if apps is None else apps
+    regions = REGIONS if regions is None else regions
+    fx = fx or fx_rates()
+    stamp = now()
+    fresh, failures, checked = [], [], set()
+    unknown = previous.get('unmatched', {})
+    if 'ios' in channels:
+        result = collect(fetch_page, fx, pause, progress, apps, regions)
+        fresh.extend(result['prices'])
+        failures.extend(result['failures'])
+        unknown = result['unmatched']
+        checked.update((a['id'], r['code'], 'ios') for a in apps for r in regions)
+    if 'web' in channels:
+        rows, errors, scope = collect_web(apps, regions, fetch_page, stamp, pause, evidence, progress, fx['rates'])
+        fresh.extend(rows)
+        failures.extend(errors)
+        checked.update(scope)
+    failed = {(f['app'], f['region'], f['channel']): f for f in failures}
+    prices = []
+    for old in previous.get('prices', []):
+        row = {**old, 'channel': old.get('channel', 'ios'), 'tax': old.get('tax', 'unknown'),
+               'observed_at': old.get('observed_at', previous.get('collected_at'))}
+        key = (row['app'], row['region'], row['channel'])
+        if key not in checked:
+            prices.append(row)
+        elif key in failed:
+            prices.append({**row, 'stale': True, 'attempted_at': stamp, 'error': failed[key]['error']})
+    prices.extend(fresh)
+    for row in prices:
+        if row.get('price') is not None:
+            row.update(cny=convert(row['price'], row['currency'], fx, 'CNY'),
+                       usd=convert(row['price'], row['currency'], fx, 'USD'))
+    errors = [f for f in previous.get('failures', [])
+              if (f['app'], f['region'], f.get('channel', 'ios')) not in checked] + failures
+    return {
+        'schema_version': 2, 'collected_at': stamp, 'source': '官方公开来源：App Store、官网地区价格接口',
+        'fx': fx, 'apps': [{k: a[k] for k in ('id', 'name', 'provider', 'app_store_id')} for a in APPS],
+        'plans': [{k: p[k] for k in ('app', 'id', 'label', 'period', 'channels') if k in p} for p in PLANS],
+        'regions': [{k: r[k] for k in ('code', 'name', 'currency')} for r in REGIONS],
+        'prices': prices, 'failures': errors, 'unmatched': unknown,
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--output', type=Path, default=OUTPUT)
     parser.add_argument('--dry-run', action='store_true')
+    parser.add_argument('--channels', default='ios,web', help='ios,web；不请求尚未核验的 Google Play 套餐价格')
+    parser.add_argument('--apps', help='例如 chatgpt,gemini')
+    parser.add_argument('--regions', help='例如 us,ph')
+    parser.add_argument('--web-evidence', type=Path, help='直接从 OpenAI 官方浏览器响应保存的凭据，保留真实时间')
     args = parser.parse_args()
-    result = collect(progress=lambda app, region, status: print(f'{app}/{region}: {status}', file=sys.stderr, flush=True))
-    ok = sum(p['status'] == 'ok' for p in result['prices'])
-    print(f"{ok}/{len(result['prices'])} 个价格匹配成功，{len(result['failures'])} 个页面失败", file=sys.stderr)
+    from .official_web import read_evidence
+    channels = args.channels.split(',')
+    if not channels or set(channels) - {'ios', 'web'}:
+        parser.error('--channels 仅支持 ios,web')
+    def selected(items, names, key):
+        if names is None:
+            return items
+        wanted = set(names.split(','))
+        if not wanted or wanted - {item[key] for item in items}:
+            parser.error('未知的应用或地区：' + names)
+        return [item for item in items if item[key] in wanted]
+    previous = json.loads(args.output.read_text()) if args.output.exists() else None
+    result = refresh(previous, channels, selected(APPS, args.apps, 'id'), selected(REGIONS, args.regions, 'code'),
+                     evidence=read_evidence(args.web_evidence),
+                     progress=lambda app, region, status: print(f'{app}/{region}: {status}', file=sys.stderr, flush=True))
+    ok = sum(p['status'] == 'ok' and not p.get('stale') for p in result['prices'])
+    stale = sum(bool(p.get('stale')) for p in result['prices'])
+    print(f"{ok}/{len(result['prices'])} 条非失败报价，保留 {stale} 条旧记录，{len(result['failures'])} 个来源失败", file=sys.stderr)
     for app, names in result['unmatched'].items():
         for name, regions in sorted(names.items()):
             print(f'注意：{app} 出现未收录的内购项目「{name}」（{",".join(regions)}），可能是新套餐，需更新 PLANS', file=sys.stderr)
-    if not ok:
+    if not result['prices']:
         sys.exit('没有取得任何价格，保留原文件不变')
     if not args.dry_run:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         temp = args.output.with_suffix('.tmp')
         temp.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
         temp.replace(args.output)
-        print(f'已写入 {args.output.relative_to(ROOT)}', file=sys.stderr)
+        print(f'已写入 {args.output}', file=sys.stderr)
 
 
 if __name__ == '__main__':
