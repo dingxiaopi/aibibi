@@ -14,8 +14,6 @@ export default function OfficialCompare({
   if (!ref) return null;
   const { app, plan, us, cheapest, regions } = ref;
   const unit = plan.period === "year" ? "/年" : "/月";
-  const delta =
-    us && minimum !== null ? Math.round((minimum / us.cny - 1) * 100) : null;
   return (
     <section className="official-compare" aria-label="官方订阅价格对比">
       <div>
@@ -26,7 +24,7 @@ export default function OfficialCompare({
         </small>
       </div>
       <div>
-        <span>官方最低地区</span>
+        <span>App Store 最低地区标价</span>
         <strong>{cny(cheapest.cny)}</strong>
         <small>
           {regionName(cheapest.region)}区 {cheapest.display_price}
@@ -34,15 +32,10 @@ export default function OfficialCompare({
         </small>
       </div>
       <div>
-        <span>本页最低价对比美区官方</span>
-        <strong
-          data-tone={
-            delta === null ? undefined : delta < 0 ? "cheaper" : "pricier"
-          }
-        >
-          {delta === null ? "—" : `${delta > 0 ? "+" : ""}${delta}%`}
-        </strong>
+        <span>本页第三方最低货架价</span>
+        <strong>{minimum === null ? "—" : cny(minimum)}</strong>
         <small>
+          税费与交付条件需另行核对。{" "}
           <Link href={`/official/${app.id}`}>
             查看 {regions} 个地区官方价格 →
           </Link>

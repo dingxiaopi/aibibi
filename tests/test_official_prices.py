@@ -60,7 +60,8 @@ class OfficialPriceTests(unittest.TestCase):
             return url, page(ITEMS if app is APP else [], region, app)
 
         result = collect(fetch_page=fake, fx=fx, pause=lambda s: None)
-        self.assertIn({'app': 'chatgpt', 'region': 'tr', 'error': 'timeout'}, result['failures'])
+        self.assertTrue(any(f['app'] == 'chatgpt' and f['region'] == 'tr' and
+                            f['channel'] == 'ios' and f['error'] == 'timeout' for f in result['failures']))
         plus_us = next(p for p in result['prices'] if (p['app'], p['plan'], p['region']) == ('chatgpt', 'plus-month', 'us'))
         self.assertEqual((plus_us['cny'], plus_us['usd']), (139.93, 19.99))
         self.assertFalse(any(p['region'] == 'tr' for p in result['prices']))

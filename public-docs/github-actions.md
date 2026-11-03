@@ -174,3 +174,8 @@ VPS 会保留工作目录。工作流在成功保存密文到私有 Git 后才�
 
 VPS profile 使用节点本地的 npm 缓存，不再上传/下载 GitHub Actions 的远程 npm 缓存；
 托管 runner 仍使用远程缓存。`npm ci` 继续严格按 lockfile 安装。
+
+## 官方地区价
+
+App Store 与官网地区价使用独立的 [Official prices 手动工作流](official-prices.md)，
+不读取店铺状态、不自动发布网站；普通店铺采集的配置和范围保持独立。
