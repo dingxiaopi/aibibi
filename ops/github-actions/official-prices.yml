@@ -1,0 +1,94 @@
+# Install in a PRIVATE state repository. Manual only; never deploys the website.
+name: Official prices
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Supported = App Store (4 apps) + Gemini web; ChatGPT web may return 403
+        type: choice
+        options: [supported, ios, gemini, chatgpt]
+        default: supported
+      mode:
+        description: Probe checks sources; collect saves an accepted snapshot privately
+        type: choice
+        options: [probe, collect]
+        default: probe
+      regions:
+        description: Optional comma-separated region codes; probe defaults us,ph; collect defaults all 14
+        type: string
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aibibi-collector
+  cancel-in-progress: false
+
+jobs:
+  official:
+    if: github.event.repository.private && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SOURCE: ${{ inputs.source }}
+      MODE: ${{ inputs.mode }}
+      REGIONS: ${{ inputs.regions }}
+    steps:
+      - name: Require a pinned reviewed code revision
+        env:
+          CODE_REF: ${{ vars.OFFICIAL_APP_REF }}
+        run: |
+          python3 - <<'PYTHON'
+          import os, re
+          if not re.fullmatch(r'[0-9a-f]{40}', os.environ['CODE_REF']):
+              raise SystemExit('Set OFFICIAL_APP_REF to a reviewed full commit SHA.')
+          PYTHON
+      - name: Check out private state
+        uses: actions/checkout@v4
+        with:
+          path: state
+          ref: main
+      - name: Check out reviewed collector code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.APP_REPOSITORY }}
+          ref: ${{ vars.OFFICIAL_APP_REF }}
+          path: app
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Restore latest official snapshot
+        run: |
+          if [ -f state/official-prices/snapshot.json ]; then
+            cp state/official-prices/snapshot.json app/cloudflare/shared/official-prices.json
+          fi
+      - name: Check or collect official sources
+        id: collect
+        working-directory: app
+        run: python3 -m collector.official_actions --source "$SOURCE" --mode "$MODE" --regions "$REGIONS"
+      - name: Retain source diagnostics and candidate snapshot
+        if: always() && steps.collect.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-prices-${{ github.run_id }}-${{ github.run_attempt }}
+          path: app/.local/official-prices/
+          include-hidden-files: true
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Save accepted collection (no website publication)
+        if: success() && inputs.mode == 'collect'
+        working-directory: state
+        run: |
+          mkdir -p official-prices
+          cp ../app/.local/official-prices/snapshot.json official-prices/snapshot.json
+          cp ../app/.local/official-prices/report.json official-prices/report.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- official-prices/snapshot.json official-prices/report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Save official prices (run $GITHUB_RUN_ID)"
+            git -c http.version=HTTP/1.1 push origin HEAD:main
+          fi
