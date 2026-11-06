@@ -11,7 +11,6 @@
 | App Store | 对应国家商品页内的 `addOns`，校验 storefront、应用 ID、套餐名称与周期 | 仅公开列出的内购项目；税费口径未明确时显示标价 |
 | ChatGPT 官网 | `https://chatgpt.com/backend-api/checkout_pricing_config/configs/{国家代码}` | 核对国家、实际计费币种与月付档位；可能返回 403/429 |
 | Gemini 官网 | 从 Google One 当前官方页面及其脚本发现 `pricing_YYYY_MM_DD.json`，再读取各地区官方 feed | 不固定历史版本；税费口径未明确时显示标价 |
-| Google Play | 尚未接入可靠的分地区订阅套餐来源 | 商品页的价格区间不能当作具体套餐订阅价 |
 
 只展示来源明确给出的税费金额。例如菲律宾 ChatGPT Plus 官网响应同时给出含税价
 PHP 1,100 与未税价 PHP 982.14；App Store 的 PHP 999 是另一渠道报价。

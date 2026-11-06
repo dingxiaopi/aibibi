@@ -48,7 +48,7 @@ const quotes = (app: string, plan: string) => {
 };
 /** Same channels, tax bases and observation times as the interactive page. */
 export function officialContent(path: string) {
-  const source = `<p>价格直接来自官方公开来源，每个地区一行对比官网与 App Store。官网明确提供的含税、未税金额并列展示，未提供的金额不反推。人民币按 ${escapeHtml(official.fx.updated_at)} 的汇率换算，逐条显示真实采集时间。Google Play 具体套餐待核验，应用级内购区间不参与最低价。</p>`;
+  const source = `<p>价格直接来自官方公开来源，每个地区一行对比官网与 App Store。官网明确提供的含税、未税金额并列展示，未提供的金额不反推。人民币按 ${escapeHtml(official.fx.updated_at)} 的汇率换算，逐条显示真实采集时间。</p>`;
   if (path === "/official")
     return `<h1>AI 订阅官方价格 · 各地区与渠道对比</h1>${source}<ul>${official.apps.map((app) => `<li><a href="/official/${app.id}">${escapeHtml(app.name)} 官方价格</a>${quotes(app.id, HEADLINE_PLAN[app.id])}</li>`).join("")}</ul>`;
   const app = officialApp(path.slice(10));

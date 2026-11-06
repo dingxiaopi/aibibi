@@ -1,13 +1,12 @@
 import data from "./official-prices.json";
 import { SITE_NAME } from "./site";
 
-export type OfficialChannel = "ios" | "web" | "google_play";
+export type OfficialChannel = "ios" | "web";
 export type ChannelFilter = OfficialChannel | "all";
 export type TaxBasis = "inclusive" | "exclusive" | "unknown";
 export const CHANNEL_NAMES: Record<OfficialChannel, string> = {
   ios: "App Store",
   web: "官网直购",
-  google_play: "Google Play",
 };
 export const TAX_NAMES: Record<TaxBasis, string> = {
   inclusive: "含税",
@@ -183,6 +182,122 @@ export type RankedPrice = OfficialPrice & {
   /** Percentage against the US storefront; negative is cheaper. */
   vs_us: number | null;
 };
+export type ChartChannel = "ios" | "web_inclusive" | "web_exclusive";
+export const CHART_CHANNELS: ChartChannel[] = [
+  "ios",
+  "web_inclusive",
+  "web_exclusive",
+];
+export const CHART_CHANNEL_NAMES: Record<ChartChannel, string> = {
+  ios: "App Store",
+  web_inclusive: "官网含税",
+  web_exclusive: "官网不含税",
+};
+export type ChartPriceRow = {
+  region: string;
+  currency: string;
+  amount: number;
+  display_price: string;
+  cny: number;
+  tax: TaxBasis;
+  tax_percent?: number;
+  vs_us: number | null;
+  source_url: string;
+  observed_at: string;
+};
+export type ChartPriceResult = {
+  rows: ChartPriceRow[];
+  /** True when the app's official web prices do not distinguish inclusive/exclusive tax (e.g. Gemini). */
+  fallback_unknown: boolean;
+  label: string;
+};
+/** Sorted low-to-high chart rows for a single price channel/tax basis. */
+export function chartPrices(
+  app: string,
+  plan: string,
+  channel: ChartChannel = "ios",
+): ChartPriceResult {
+  const active = priceRows(app, plan, "all").filter((p) => !isOldPrice(p));
+  if (channel === "ios") {
+    const iosRows = active.filter(
+      (p) => priceChannel(p) === "ios" && p.price != null && p.cny != null,
+    );
+    const rows: ChartPriceRow[] = iosRows
+      .map((r) => ({
+        region: r.region,
+        currency: r.currency || "",
+        amount: r.price!,
+        display_price:
+          r.display_price ||
+          `${r.currency || ""} ${r.price!.toLocaleString("zh-CN", { maximumFractionDigits: 2 })}`.trim(),
+        cny: r.cny!,
+        tax: priceTax(r),
+        tax_percent: r.tax_percent,
+        vs_us: null,
+        source_url: r.source_url,
+        observed_at: observedAt(r),
+      }))
+      .sort((a, b) => a.cny - b.cny);
+    return { rows, fallback_unknown: false, label: CHART_CHANNEL_NAMES.ios };
+  }
+  const webRows = active.filter((p) => priceChannel(p) === "web");
+  const hasExplicitTax = webRows.some(
+    (r) => priceTax(r) !== "unknown" || r.pretax_price != null,
+  );
+  if (!hasExplicitTax && webRows.length > 0) {
+    const rows: ChartPriceRow[] = webRows
+      .filter((r) => r.price != null && r.cny != null)
+      .map((r) => ({
+        region: r.region,
+        currency: r.currency || "",
+        amount: r.price!,
+        display_price:
+          r.display_price ||
+          `${r.currency || ""} ${r.price!.toLocaleString("zh-CN", { maximumFractionDigits: 2 })}`.trim(),
+        cny: r.cny!,
+        tax: "unknown" as TaxBasis,
+        tax_percent: r.tax_percent,
+        vs_us: null,
+        source_url: r.source_url,
+        observed_at: observedAt(r),
+      }))
+      .sort((a, b) => a.cny - b.cny);
+    return { rows, fallback_unknown: true, label: "官网标价" };
+  }
+  const targetBasis: TaxBasis =
+    channel === "web_inclusive" ? "inclusive" : "exclusive";
+  const extracted = webRows.flatMap((r) => {
+    const amount = taxPrice(r, targetBasis);
+    if (amount == null) return [];
+    const converted = amountCny(r, amount);
+    if (converted == null || !Number.isFinite(converted)) return [];
+    return [
+      {
+        region: r.region,
+        currency: r.currency || "",
+        amount,
+        display_price: `${r.currency || ""} ${amount.toLocaleString("zh-CN", { maximumFractionDigits: 2 })}`.trim(),
+        cny: converted,
+        tax: targetBasis,
+        tax_percent: r.tax_percent,
+        source_url: r.source_url,
+        observed_at: observedAt(r),
+      },
+    ];
+  });
+  const usCny = extracted.find((r) => r.region === "us")?.cny ?? null;
+  const rows: ChartPriceRow[] = extracted
+    .map((r) => ({
+      ...r,
+      vs_us: usCny ? Math.round((r.cny / usCny - 1) * 100) : null,
+    }))
+    .sort((a, b) => a.cny - b.cny);
+  return {
+    rows,
+    fallback_unknown: false,
+    label: CHART_CHANNEL_NAMES[channel],
+  };
+}
 /** Matched prices of one plan, cheapest first. */
 export function rankedPrices(
   app: string,
