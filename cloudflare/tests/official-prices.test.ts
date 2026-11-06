@@ -6,6 +6,7 @@ import {
   officialFor,
   official,
   rankedPrices,
+  chartPrices,
   isOldPrice,
   taxPrice,
   amountCny,
@@ -200,6 +201,67 @@ test("official comparison names the plan, US price and cheapest region", () => {
       assert.equal(officialFor("plus-year-ios-365")?.plan.period, "year");
       for (const sku of ["plus-mirror-month", "codex-credits-250", "missing"])
         assert.equal(officialFor(sku), null);
+    },
+  );
+});
+
+test("chartPrices sorts each of the 3 channels low-to-high and falls back to web_unknown when web tax is unspecified", () => {
+  withPrices(
+    [
+      quote({ channel: "ios", region: "us", tax: "unknown", price: 20, cny: 140 }),
+      quote({ channel: "ios", region: "ph", tax: "unknown", price: 999, cny: 105 }),
+      quote({
+        channel: "web",
+        region: "us",
+        tax: "exclusive",
+        price: 20,
+        cny: 20 * official.fx.rates.CNY,
+      }),
+      quote({
+        channel: "web",
+        region: "ph",
+        tax: "inclusive",
+        price: 1100,
+        pretax_price: 982.14,
+        currency: "PHP",
+        cny: Math.round((1100 / official.fx.rates.PHP) * official.fx.rates.CNY * 100) / 100,
+      }),
+      quote({
+        app: "gemini",
+        plan: "pro-month",
+        channel: "web",
+        region: "us",
+        tax: "unknown",
+        price: 19.99,
+        cny: 140,
+      }),
+      quote({
+        app: "gemini",
+        plan: "pro-month",
+        channel: "web",
+        region: "eg",
+        tax: "unknown",
+        price: 939.99,
+        cny: 113,
+      }),
+    ],
+    () => {
+      const ios = chartPrices("chatgpt", "plus-month", "ios");
+      assert.deepEqual(ios.rows.map((r) => r.region), ["ph", "us"]);
+      assert.equal(ios.fallback_unknown, false);
+
+      const webInc = chartPrices("chatgpt", "plus-month", "web_inclusive");
+      assert.deepEqual(webInc.rows.map((r) => r.region), ["ph"]);
+      assert.equal(webInc.rows[0].amount, 1100);
+
+      const webExc = chartPrices("chatgpt", "plus-month", "web_exclusive");
+      assert.deepEqual(webExc.rows.map((r) => r.region), ["ph", "us"]);
+      assert.equal(webExc.rows[0].amount, 982.14);
+
+      const geminiWeb = chartPrices("gemini", "pro-month", "web_inclusive");
+      assert.equal(geminiWeb.fallback_unknown, true);
+      assert.equal(geminiWeb.label, "官网标价");
+      assert.deepEqual(geminiWeb.rows.map((r) => r.region), ["eg", "us"]);
     },
   );
 });

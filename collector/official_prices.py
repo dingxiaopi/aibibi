@@ -246,7 +246,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--output', type=Path, default=OUTPUT)
     parser.add_argument('--dry-run', action='store_true')
-    parser.add_argument('--channels', default='ios,web', help='ios,web；不请求尚未核验的 Google Play 套餐价格')
+    parser.add_argument('--channels', default='ios,web', help='采集渠道：ios,web')
     parser.add_argument('--apps', help='例如 chatgpt,gemini')
     parser.add_argument('--regions', help='例如 us,ph')
     parser.add_argument('--web-evidence', type=Path, help='直接从 OpenAI 官方浏览器响应保存的凭据，保留真实时间')
