@@ -1,4 +1,4 @@
-import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_FAVICON } from "./shared/site.ts";
+import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_FAVICON, SITE_LOGO } from "./shared/site.ts";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -19,7 +19,10 @@ export default defineConfig({
         html
           .replace("%SITE_TITLE%", escapeHtml(`${SITE_NAME} · ${SITE_TAGLINE}`))
           .replace("%SITE_DESCRIPTION%", escapeHtml(SITE_DESCRIPTION))
-          .replace("%SITE_FAVICON%", escapeHtml(SITE_FAVICON)),
+          .replace("%SITE_FAVICON%", escapeHtml(SITE_FAVICON))
+          .replace("%SITE_LOGO%", escapeHtml(SITE_LOGO))
+          .replace("%SITE_NAME%", escapeHtml(SITE_NAME))
+          .replace("%SITE_TAGLINE%", escapeHtml(SITE_TAGLINE)),
     },
   ],
   server: {

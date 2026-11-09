@@ -6,7 +6,7 @@ import { workerScript } from "./helpers/worker";
 import { safeJson } from "../src/seo/content";
 let mf: Miniflare;
 const asset =
-  '<!doctype html><html><head><title>default</title><meta name="description" content="default"></head><body><div id="root"></div><script src="/app.js"></script></body></html>';
+  '<!doctype html><html><head><title>default</title><meta name="description" content="default"></head><body><div id="root"><div class="boot-shell"></div></div><script src="/app.js"></script></body></html>';
 const name = 'Plus 中文 <img src=x onerror="bad()">';
 const call = (path: string, method = "GET") =>
   mf.dispatchFetch(`https://example.test${path}`, { method });
@@ -140,6 +140,15 @@ test("missing SKU, shop and category return real 404 for GET and HEAD", async ()
     const head = await call(path, "HEAD");
     assert.equal(head.status, 404);
     assert.equal(await head.text(), "");
+  }
+});
+test("server text is kept for crawlers behind the styled boot shell", async () => {
+  for (const path of ["/", "/sku/active", "/official", "/shops/S1"]) {
+    const html = await (await call(path)).text();
+    assert.match(
+      html,
+      /<div id="root"><div class="boot-shell"><\/div><div class="ssr-fallback"><main>/,
+    );
   }
 });
 test("unknown paths return the app shell with 404; client pages stay 200", async () => {

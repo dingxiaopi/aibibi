@@ -136,8 +136,9 @@ export async function renderPage(request: Request, env: Env) {
     })
     .on("#root", {
       element(el) {
-        el.setInnerContent(
-          pageContent(path, catalog, directory.shops, quotes, missing),
+        // Keep the boot shell from index.html; the text is for crawlers.
+        el.append(
+          `<div class="ssr-fallback">${pageContent(path, catalog, directory.shops, quotes, missing)}</div>`,
           { html: true },
         );
       },
