@@ -10,10 +10,16 @@ on:
         options: [sample, hosted, vps_sample, vps, production]
         default: sample
       mode:
-        description: Probe only; update publishes; resume continues; restart abandons unfinished progress and publishes a new round
+        description: Probe only; update publishes; resume continues; restart abandons unfinished progress and publishes a new round; auto resumes if unfinished, otherwise updates
         type: choice
-        options: [probe, update, resume, restart]
+        options: [probe, update, resume, restart, auto]
         default: probe
+  # Optional schedule (UTC). Uncomment and map each cron line to one profile with the
+  # COLLECTOR_SCHEDULE variable, e.g. {"0 0 * * *":"hosted","30 1 * * *":"vps"}.
+  # Scheduled runs always use auto mode. Keep profiles apart so their runs do not overlap.
+  # schedule:
+  #   - cron: '0 0 * * *'
+  #   - cron: '30 1 * * *'
 
 permissions:
   contents: write
@@ -24,15 +30,15 @@ concurrency:
 
 jobs:
   collect:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
-    runs-on: ${{ fromJSON(startsWith(inputs.profile, 'vps') && (vars.COLLECTOR_VPS_RUNNER_LABELS || '["self-hosted","aibibi-vps"]') || (vars.COLLECTOR_RUNNER_LABELS || '["ubuntu-latest"]')) }}
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && fromJSON(vars.COLLECTOR_SCHEDULE || '{}')[github.event.schedule] != ''))
+    runs-on: ${{ fromJSON(startsWith(inputs.profile || fromJSON(vars.COLLECTOR_SCHEDULE || '{}')[github.event.schedule] || '', 'vps') && (vars.COLLECTOR_VPS_RUNNER_LABELS || '["self-hosted","aibibi-vps"]') || (vars.COLLECTOR_RUNNER_LABELS || '["ubuntu-latest"]')) }}
     timeout-minutes: 120
     env:
-      PROFILE: ${{ inputs.profile }}
-      MODE: ${{ inputs.mode }}
+      PROFILE: ${{ inputs.profile || fromJSON(vars.COLLECTOR_SCHEDULE || '{}')[github.event.schedule] || '' }}
+      MODE: ${{ inputs.mode || 'auto' }}
     steps:
       - name: Refuse to overwrite retained private work
-        if: startsWith(inputs.profile, 'vps')
+        if: startsWith(env.PROFILE, 'vps')
         run: |
           python3 - <<'PYTHON'
           import os
@@ -59,7 +65,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: ${{ !startsWith(inputs.profile, 'vps') && 'npm' || '' }}
+          cache: ${{ !startsWith(env.PROFILE, 'vps') && 'npm' || '' }}
           cache-dependency-path: app/cloudflare/package-lock.json
       - name: Install dependencies
         run: |
@@ -112,7 +118,7 @@ jobs:
             fi
           fi
       - name: Remove plaintext only after durable encrypted save
-        if: always() && startsWith(inputs.profile, 'vps') && steps.persist.outcome == 'success'
+        if: always() && startsWith(env.PROFILE, 'vps') && steps.persist.outcome == 'success'
         run: |
           python3 - <<'PYTHON'
           import os

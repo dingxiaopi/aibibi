@@ -61,7 +61,7 @@ npm run demo
 ```
 
 数据更新与代码部署独立。采集默认手动运行，开源仓库不安装定时任务。
-也可在自己的私有仓库[用 GitHub Actions 手动采集](public-docs/github-actions.md)，加密保存状态，无需本机持续在线。
+也可在自己的私有仓库[用 GitHub Actions 手动或定时采集](public-docs/github-actions.md)，加密保存状态，无需本机持续在线。
 
 ## 自己部署
 

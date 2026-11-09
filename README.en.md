@@ -63,7 +63,7 @@ Public shop listings and detail pages
 ```
 
 Data updates and code deployment are independent. Collection runs manually by default; the open-source repository installs no scheduled jobs.
-You can also [collect manually with GitHub Actions](public-docs/github-actions.md) from your own private repository, with encrypted state, so your machine does not need to stay online.
+You can also [collect manually or on a schedule with GitHub Actions](public-docs/github-actions.md) from your own private repository, with encrypted state, so your machine does not need to stay online.
 
 ## Deploy your own
 

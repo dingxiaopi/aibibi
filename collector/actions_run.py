@@ -34,10 +34,13 @@ def public_progress(line):
 
 
 def run(mode):
-    if mode not in ('probe', 'update', 'resume', 'restart'):
+    if mode not in ('probe', 'update', 'resume', 'restart', 'auto'):
         raise ValueError('Unknown collection mode')
-    if os.environ.get('GITHUB_ACTIONS') == 'true' and os.environ.get('GITHUB_EVENT_NAME') != 'workflow_dispatch':
-        raise ValueError('Real collection requires a manual workflow dispatch')
+    event = os.environ.get('GITHUB_EVENT_NAME')
+    if os.environ.get('GITHUB_ACTIONS') == 'true' and event not in ('workflow_dispatch', 'schedule'):
+        raise ValueError('Real collection requires a manual or scheduled workflow run')
+    if os.environ.get('GITHUB_ACTIONS') == 'true' and event == 'schedule' and mode != 'auto':
+        raise ValueError('Scheduled runs only use auto mode')
     instance = json.loads((DATA_DIR / 'instance.json').read_text())
     url = urlsplit(TARGET_URL)
     if (url.scheme != 'https' or not url.hostname or url.username or url.password or
@@ -50,6 +53,9 @@ def run(mode):
     state_file = STATE_DIR / 'update-state.json'
     state = json.loads(state_file.read_text()) if state_file.exists() else {}
     unfinished = state.get('phase') not in (None, 'complete') or (STATE_DIR / 'collect-checkpoint.json').exists()
+    # Auto continues interrupted work instead of failing; it never abandons progress.
+    if mode == 'auto':
+        mode = 'resume' if unfinished else 'update'
     if mode == 'resume' and not unfinished:
         raise ValueError('No unfinished update to resume')
     if mode not in ('resume', 'restart') and unfinished:
@@ -128,7 +134,7 @@ def run(mode):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--mode', choices=['probe', 'update', 'resume', 'restart'], required=True)
+    parser.add_argument('--mode', choices=['probe', 'update', 'resume', 'restart', 'auto'], required=True)
     args = parser.parse_args()
     try:
         code = run(args.mode)

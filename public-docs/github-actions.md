@@ -1,4 +1,4 @@
-# 用 GitHub Actions 手动采集
+# 用 GitHub Actions 采集
 
 新实例先按[从零到第一条真实报价](first-quote.md)完成来源初始化、首次审核与本地/线上推送。
 Actions 固定使用 `--no-ai`；未建立商品映射时，采到货架也不会自动产生可比价报价。
@@ -18,7 +18,7 @@ Actions 固定使用 `--no-ai`；未建立商品映射时，采到货架也不�
   → 无论成功或正常失败，都加密并保存最新状态
 ```
 
-工作流只有 `workflow_dispatch`，不接受 PR 触发，也没有定时器。它固定使用 `--no-ai`，
+工作流默认只有 `workflow_dispatch`，不接受 PR 触发；定时运行需要在私有仓库自行开启（见[定时运行](#定时运行)）。它固定使用 `--no-ai`，
 不会为新商品调用 AI 或自动批准。更新数据无需部署 Worker。
 
 ## 私有仓库配置
@@ -115,6 +115,7 @@ gh secret set COLLECTOR_STATE_KEY --repo YOUR_OWNER/YOUR_PRIVATE_STATE_REPO < .l
 | `mode=update` | 同步、采集、导出、推送 |
 | `mode=resume` | 继续未完成任务；原来是 probe 就仍然不推送 |
 | `mode=restart` | 明确放弃未完成进度，重新采集并推送；旧密文仍在私有 Git 历史中 |
+| `mode=auto` | 有未完成任务就继续，否则同 update；定时运行固定使用这个模式 |
 
 第一次先 sample + probe，再 sample + update；确认 runner 的原店访问能力和推送结果后，
 再运行选定范围的 hosted 或 production + update。遇到验证码、登录墙、WAF 或源站限制时，不绕过。
@@ -127,7 +128,23 @@ gh secret set COLLECTOR_STATE_KEY --repo YOUR_OWNER/YOUR_PRIVATE_STATE_REPO < .l
 托管 runner 的网络访问能力必须实际验证；本机能读取的来源，不保证 GitHub 的机器也能读取。
 例如 2026-11-02 的验证中，wzyp 在托管 runner 返回验证页，而同一来源在原本机可以正常读取。
 这种情况需要使用能正常访问原店的专用采集节点，或明确限定托管 runner 的采集范围，不能降低门槛后盲目推送。
-自托管 runner 应注册在私有运行仓库，使用专用标签，保持工作流仅手动触发并固定采集代码提交。
+自托管 runner 应注册在私有运行仓库，使用专用标签，并固定采集代码提交。
+
+## 定时运行
+
+手动 update 跑通、确认推送回执后，可以在私有仓库开启定时。模板里的 `schedule` 默认注释掉：
+
+1. 取消 `schedule` 两行 cron 的注释，按需修改时间（UTC，GitHub 可能延迟几分钟到几十分钟）。
+2. 添加仓库变量 `COLLECTOR_SCHEDULE`，把每行 cron 原文对应到一个 profile，例如
+   `{"0 0 * * *":"hosted","30 1 * * *":"vps"}`。没有对应 profile 的 cron 不会运行。
+3. 把 `APP_REF` 更新到包含 `auto` 模式的已审核提交。
+
+定时任务只用 `auto`：上次中断就继续，不会放弃进度，也不会改用 probe 或 restart。
+各 profile 共享全局串行锁，但 GitHub 对同一锁最多保留一个排队任务，新的排队会取消旧的。
+因此不同 profile 的时间要错开，间隔大于前一组的运行时长。
+网站报价默认 168 小时后失效，采集间隔应明显短于这个时限。
+私有仓库 60 天没有提交时 GitHub 会停用定时任务；每次保存密文都会产生提交，正常运行不会触发。
+GitHub 托管 runner 在私有仓库计入每月免费分钟数，自托管 runner 不计。
 
 ## 按来源分配运行节点
 
@@ -139,7 +156,7 @@ VPS runner 只注册到自己的私有状态仓库，使用专用标签和无 su
 默认标签为 self-hosted、aibibi-vps，GitHub 自带的 Linux/X64 标签也会保留。
 按照 [GitHub 官方步骤](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners)
 安装并注册官方 runner；使用专用工作目录、0077 umask、合理内存/CPU限制，配置 runsvc.sh 对应的服务。
-服务常驻监听任务不等于定时采集；工作流仍然只由 workflow_dispatch 手动启动。
+服务常驻监听任务不等于定时采集；是否定时由私有仓库的 `schedule` 和 `COLLECTOR_SCHEDULE` 决定。
 
 VPS 会保留工作目录。工作流在成功保存密文到私有 Git 后才移除解密数据；
 若解密/加密或 Git 保存中断而留下 app/.local/data，下次任务在 checkout 之前停止，避免清理时丢失未保存进度。
