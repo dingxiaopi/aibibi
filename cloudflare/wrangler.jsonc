@@ -10,7 +10,8 @@
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
-    "not_found_handling": "single-page-application",
+    // Unknown paths reach the Worker, which returns the app shell with a real 404.
+    "not_found_handling": "none",
     "run_worker_first": [
       "/api/*",
       "/data/*",

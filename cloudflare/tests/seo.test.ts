@@ -142,6 +142,16 @@ test("missing SKU, shop and category return real 404 for GET and HEAD", async ()
     assert.equal(await head.text(), "");
   }
 });
+test("unknown paths return the app shell with 404; client pages stay 200", async () => {
+  for (const path of ["/nonexistent", "/sku/a/b", "/admin/unknown"]) {
+    const response = await call(path);
+    assert.equal(response.status, 404);
+    assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
+    assert.match(await response.text(), /<div id="root">/);
+  }
+  for (const path of ["/search", "/about", "/submit", "/admin", "/admin/reviews"])
+    assert.equal((await call(path)).status, 200);
+});
 test("sitemap lists canonical products, categories and shops with observed lastmod; robots excludes private routes", async () => {
   const response = await call("/sitemap.xml");
   const xml = await response.text();
