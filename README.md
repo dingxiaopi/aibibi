@@ -1,13 +1,19 @@
 # AI比比 · AI Subscription Comparison
 
-**aibibi** 是可以自行部署的 AI 订阅比价工具。它从自己登记的原店读取公开报价，按审核后的规格比较价格、库存和购买条件，并保留来源与观察时间。
+[English](README.en.md) · 简体中文
 
-Python 采集与审核 · React + Vite 前端 · Cloudflare Workers + D1 · MIT
+**同一个 AI 订阅，在哪里买最划算？** AI比比 把 ChatGPT、Claude、Gemini 等订阅按相同规格对齐，比较各家店铺的价格、库存和购买条件，并对照各地区官方价。每条报价都能查到来源和采集时间。
+
+代码可以自行部署：Python 采集与审核 · React + Vite 前端 · Cloudflare Workers + D1。
 
 [![Quality](https://github.com/dingxiaopi/aibibi/actions/workflows/quality.yml/badge.svg)](https://github.com/dingxiaopi/aibibi/actions/workflows/quality.yml)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-[从零到第一条真实报价](public-docs/first-quote.md) · [v0.3.0 发布说明](public-docs/releases/v0.3.0.md) · [AI比比网站](https://aibibi.app) · [部署说明](public-docs/deployment.md) · [常见问题](public-docs/troubleshooting.md)
+[在线网站 aibibi.app](https://aibibi.app) · [从零到第一条真实报价](public-docs/first-quote.md) · [部署说明](public-docs/deployment.md) · [常见问题](public-docs/troubleshooting.md) · [v0.3.0 发布说明](public-docs/releases/v0.3.0.md)
+
+![本地演示：首页、分类、商品报价与官方地区价排行](public-docs/images/demo.gif)
+
+<sub>画面来自本地演示：店铺、报价与库存为虚构示例；官方价为仓库自带的公开官方价快照。</sub>
 
 ## 先运行演示
 
@@ -23,9 +29,7 @@ npm run demo
 打开 <http://127.0.0.1:8787>。演示使用独立本地数据库、虚构店铺与示例报价，不需要 Cloudflare 登录、真实店铺或 AI Key。
 已有程序占用端口时，使用 `npm run demo -- --port 8790`。
 
-## 演示预览
-
-下图来自本地演示，店铺、报价与库存均为虚构示例。
+## 演示截图
 
 ![本地演示：商品详情与有效报价](public-docs/images/demo-desktop.png)
 

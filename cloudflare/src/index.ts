@@ -1,4 +1,4 @@
-import { publicPage, renderPage } from "./seo/pages";
+import { appPage, publicPage, renderPage } from "./seo/pages";
 import { discovery } from "./seo/discovery";
 import { json, RequestError } from "./auth";
 import { routeApi } from "./router";
@@ -10,18 +10,7 @@ async function handle(request: Request, env: Env, url: URL) {
     return json({ error: "完整快照不公开，请使用页面查询" }, 404);
   if (url.pathname.startsWith("/api/")) return routeApi(request, env, url);
   if (["GET", "HEAD"].includes(request.method)) {
-    if (url.pathname === "/favorites") {
-      const asset = await env.ASSETS.fetch(
-        new Request(new URL("/index.html", url)),
-      );
-      const headers = new Headers(asset.headers);
-      headers.set("Cache-Control", "private, no-store");
-      headers.set("X-Robots-Tag", "noindex, nofollow");
-      return new Response(request.method === "HEAD" ? null : asset.body, {
-        status: asset.status,
-        headers,
-      });
-    }
+    if (url.pathname === "/favorites") return appShell(request, env, url);
     if (url.pathname === "/sitemap.xml" || url.pathname === "/robots.txt")
       return discovery(request, env);
     if (publicPage(url.pathname)) return renderPage(request, env);
@@ -30,8 +19,24 @@ async function handle(request: Request, env: Env, url: URL) {
         new URL(url.pathname.replace("/shop/", "/shops/") + url.search, url),
         308,
       );
+    // Static files are served before the Worker runs; anything else that
+    // reaches here is a client-rendered page or a path that does not exist.
+    if (!/\.[^/]+$/.test(url.pathname))
+      return appShell(request, env, url, appPage(url.pathname) ? 200 : 404);
   }
   return env.ASSETS.fetch(request);
+}
+
+async function appShell(request: Request, env: Env, url: URL, status = 200) {
+  const asset = await env.ASSETS.fetch(new Request(new URL("/index.html", url)));
+  const headers = new Headers(asset.headers);
+  headers.set("Content-Type", "text/html; charset=utf-8");
+  headers.set("Cache-Control", "private, no-store");
+  headers.set("X-Robots-Tag", "noindex, nofollow");
+  return new Response(request.method === "HEAD" ? null : asset.body, {
+    status: asset.ok ? status : asset.status,
+    headers,
+  });
 }
 
 export default {

@@ -6,7 +6,7 @@ import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
 ROOT_FILES = {
-    'README.md', 'LICENSE', 'DATA_POLICY.md', 'TRADEMARKS.md',
+    'README.md', 'README.en.md', 'LICENSE', 'DATA_POLICY.md', 'TRADEMARKS.md',
     'THIRD_PARTY_NOTICES.md', 'CONTRIBUTING.md', 'SECURITY.md', '.gitignore',
     '.env.ai-review.example',
 }
@@ -44,7 +44,9 @@ def included(path):
     if top == 'ops':
         return name in {'ops/github-actions/collect.yml', 'ops/github-actions/official-prices.yml', 'ops/github-actions/requirements.txt'}
     if top == 'public-docs':
-        return path.suffix == '.md' or name in {'public-docs/images/demo-desktop.png', 'public-docs/images/demo-mobile.png'}
+        return path.suffix == '.md' or name in {
+            'public-docs/images/demo-desktop.png', 'public-docs/images/demo-mobile.png',
+            'public-docs/images/demo.gif', 'public-docs/images/social-preview.png'}
     if top == 'cloudflare':
         return (len(rest) == 1 and rest[0] in CF_ROOT) or rest[0] in {'src', 'shared', 'web', 'scripts', 'tests', 'migrations'}
     return False

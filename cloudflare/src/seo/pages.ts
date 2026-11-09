@@ -15,6 +15,10 @@ export const publicPage = (path: string) =>
   /^\/(c|sku|shops|official)\/[^/]+$/.test(path) ||
   path === "/shops" ||
   path === "/official";
+/** Client-rendered pages without server content; keep in sync with web/App.tsx. */
+export const appPage = (path: string) =>
+  ["/search", "/about", "/submit", "/sponsors", "/admin"].includes(path) ||
+  /^\/admin\/(sponsors|reviews)$/.test(path);
 export async function readPublic<T>(
   path: string,
   request: Request,
