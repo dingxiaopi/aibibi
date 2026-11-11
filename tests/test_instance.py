@@ -61,7 +61,8 @@ class InstanceTests(unittest.TestCase):
                          'cloudflare/node_modules/package/index.js', '.git/config', 'docs/private.md',
                          '.github/ISSUE_TEMPLATE/bug_report.yml', '.github/PULL_REQUEST_TEMPLATE.md',
                          '.github/ISSUE_TEMPLATE/private-draft.md', 'ops/github-actions/collect.yml',
-                         'ops/github-actions/requirements.txt', 'ops/github-actions/official-prices.yml', 'ops/github-actions/private-state.bin']:
+                         'ops/github-actions/requirements.txt', 'ops/github-actions/official-prices.yml', 'ops/github-actions/watchdog.yml',
+                         'ops/github-actions/private-state.bin']:
                 path = source / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(name)
@@ -70,7 +71,8 @@ class InstanceTests(unittest.TestCase):
             self.assertEqual(files, {'LICENSE', 'README.md', 'config/site.json', 'collector/collect.py',
                                      'cloudflare/.dev.vars.example', 'cloudflare/src/index.ts',
                                      '.github/ISSUE_TEMPLATE/bug_report.yml', '.github/PULL_REQUEST_TEMPLATE.md',
-                                     'ops/github-actions/collect.yml', 'ops/github-actions/official-prices.yml', 'ops/github-actions/requirements.txt'})
+                                     'ops/github-actions/collect.yml', 'ops/github-actions/official-prices.yml',
+                                     'ops/github-actions/watchdog.yml', 'ops/github-actions/requirements.txt'})
             with self.assertRaisesRegex(ValueError, 'overwrite'):
                 export_public(source, target)
 

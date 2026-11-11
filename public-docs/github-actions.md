@@ -134,7 +134,7 @@ gh secret set COLLECTOR_STATE_KEY --repo YOUR_OWNER/YOUR_PRIVATE_STATE_REPO < .l
 
 手动 update 跑通、确认推送回执后，可以在私有仓库开启定时。模板里的 `schedule` 默认注释掉：
 
-1. 取消 `schedule` 两行 cron 的注释，按需修改时间（UTC，GitHub 可能延迟几分钟到几十分钟）。
+1. 取消 `schedule` 两行 cron 的注释，按需修改时间（UTC；GitHub 定时可能延迟数小时，偶尔整次跳过）。
 2. 添加仓库变量 `COLLECTOR_SCHEDULE`，把每行 cron 原文对应到一个 profile，例如
    `{"0 0 * * *":"hosted","30 1 * * *":"vps"}`。没有对应 profile 的 cron 不会运行。
 3. 把 `APP_REF` 更新到包含 `auto` 模式的已审核提交。
@@ -145,6 +145,19 @@ gh secret set COLLECTOR_STATE_KEY --repo YOUR_OWNER/YOUR_PRIVATE_STATE_REPO < .l
 网站报价默认 168 小时后失效，采集间隔应明显短于这个时限。
 私有仓库 60 天没有提交时 GitHub 会停用定时任务；每次保存密文都会产生提交，正常运行不会触发。
 GitHub 托管 runner 在私有仓库计入每月免费分钟数，自托管 runner 不计。
+
+### 漏跑补救
+
+GitHub 可能延迟或跳过定时任务且不提醒。将 [`ops/github-actions/watchdog.yml`](../ops/github-actions/watchdog.yml)
+复制到私有仓库 `.github/workflows/watchdog.yml`，每 4 小时检查 `COLLECTOR_SCHEDULE` 中各 profile
+（以及开启 `OFFICIAL_SCHEDULE` 时的官方价）最近一次**成功**运行：以状态提交注明的运行编号核对结论，失败运行不算。
+
+- 超过 `WATCHDOG_RETRY_HOURS`（默认 36）小时：若该工作流没有排队或运行中的任务，补发一次手动运行
+  （店铺 `auto`，官方价 `supported` / `collect`）。
+- 超过 `WATCHDOG_ALERT_HOURS`（默认 54）小时：任务标红，GitHub 按通知设置提醒仓库所有者。
+
+阈值应短于网站报价时效，并留出一次完整采集的时长。补跑可能与随后到来的延迟定时任务各跑一次，二者串行，不会重叠。
+官方价工作流使用独立队列 `aibibi-official`，不会顶掉排队中的店铺任务；两者保存不同文件，推送冲突时变基重试。
 
 ## 按来源分配运行节点
 

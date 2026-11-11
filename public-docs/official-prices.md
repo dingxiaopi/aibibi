@@ -50,7 +50,7 @@ python3 -m collector.official_prices --channels web --apps chatgpt --regions us,
 - `OFFICIAL_APP_REF`：已审核代码的完整 40 位提交 SHA。与店铺采集的 `APP_REF` 分开维护。
 
 采集本身不需要新密钥，不读取店铺密文。使用 GitHub 托管的 Ubuntu 运行器，
-与店铺采集共用串行队列。默认只有手动 `workflow_dispatch` 入口；定时与发布见下文，均需显式开启。
+使用独立队列，不会顶掉排队中的店铺采集。默认只有手动 `workflow_dispatch` 入口；定时与发布见下文，均需显式开启。
 公共仓库的 Quality CI 始终使用固定样本，不执行真实采集。
 
 在私有仓库 Actions → **Official prices** → **Run workflow** 中选择：
