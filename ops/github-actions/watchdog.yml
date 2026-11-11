@@ -1,0 +1,78 @@
+# Install in the PRIVATE state repository next to collect.yml and official-prices.yml.
+# Scheduled runs can be delayed for hours or skipped without notice. This checks when each
+# scheduled profile (COLLECTOR_SCHEDULE) and, with OFFICIAL_SCHEDULE, the official prices last
+# succeeded. Past WATCHDOG_RETRY_HOURS it dispatches one catch-up run in auto/collect mode;
+# past WATCHDOG_ALERT_HOURS the job fails so GitHub notifies the repository owner.
+name: Collection watchdog
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 */4 * * *'
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  check:
+    if: github.event.repository.private && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      SCHEDULE: ${{ vars.COLLECTOR_SCHEDULE || '{}' }}
+      OFFICIAL: ${{ vars.OFFICIAL_SCHEDULE || 'false' }}
+      RETRY_HOURS: ${{ vars.WATCHDOG_RETRY_HOURS || '36' }}
+      ALERT_HOURS: ${{ vars.WATCHDOG_ALERT_HOURS || '54' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 200
+      - name: Check the last successful collections
+        run: |
+          now=$(date +%s)
+          alert=0
+          busy() { # queued or running runs of one workflow
+            gh run list -R "$REPO" -w "$1" --json status \
+              -q '[.[] | select(.status != "completed")] | length'
+          }
+          # The state commit names its run; only a successful run counts.
+          last_success() { # $1 = commit subject prefix; prints the commit's epoch or 0
+            git log --format='%ct %s' -- "$2" | while read -r time subject; do
+              case "$subject" in "$1 (run "*")") ;; *) continue ;; esac
+              id=${subject##*(run }; id=${id%)}
+              if [ "$(gh run view "$id" -R "$REPO" --json conclusion -q .conclusion 2>/dev/null)" = success ]; then
+                echo "$time"; return
+              fi
+            done | head -n 1
+          }
+          check() { # $1 label, $2 workflow, $3 commit subject, $4 state path, $5... dispatch fields
+            label=$1 workflow=$2 subject=$3 path=$4; shift 4
+            time=$(last_success "$subject" "$path"); time=${time:-0}
+            age=$(( (now - time) / 3600 ))
+            echo "$label: last success ${age}h ago"
+            if [ "$age" -ge "$ALERT_HOURS" ]; then
+              echo "::error::$label has not succeeded for ${age}h"
+              alert=1
+            fi
+            if [ "$age" -ge "$RETRY_HOURS" ]; then
+              if [ "$(busy "$workflow")" -gt 0 ]; then
+                echo "$label: a $workflow run is already queued or running"
+              else
+                gh workflow run "$workflow" -R "$REPO" --ref main "$@"
+                echo "::warning::$label: dispatched a catch-up run after ${age}h"
+              fi
+            fi
+          }
+          for profile in $(echo "$SCHEDULE" | jq -r '[.[]] | unique | .[]'); do
+            check "$profile" collect.yml "Save $profile collector state" "profiles/$profile.bin" \
+              -f profile="$profile" -f mode=auto
+          done
+          if [ "$OFFICIAL" = true ]; then
+            check official official-prices.yml "Save official prices" official-prices \
+              -f source=supported -f mode=collect
+          fi
+          exit "$alert"

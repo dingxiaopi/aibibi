@@ -110,6 +110,8 @@ jobs:
               if [ "$attempt" -lt 5 ]; then
                 echo "Encrypted state upload interrupted; retrying ($attempt/5)."
                 sleep "$((attempt * 10))"
+                # Official prices save other files from their own queue; replay onto them.
+                git -c http.version=HTTP/1.1 pull --rebase -q origin main || true
               fi
             done
             if [ "$saved" != true ]; then
