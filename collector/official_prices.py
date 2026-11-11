@@ -40,8 +40,10 @@ PLANS = [
     {'app': 'chatgpt', 'id': 'pro500-month', 'label': 'ChatGPT Pro 500', 'period': 'month', 'name': r'^ChatGPT Pro 500$', 'offer': r'_1m$'},
     {'app': 'claude', 'id': 'pro-month', 'label': 'Claude Pro', 'period': 'month', 'name': r'^Claude Pro - Monthly$', 'offer': r'monthly'},
     {'app': 'claude', 'id': 'pro-year', 'label': 'Claude Pro 年付', 'period': 'year', 'name': r'^Claude Pro - Annual$', 'offer': r'yearly'},
-    {'app': 'claude', 'id': 'max5-month', 'label': 'Claude Max 5x', 'period': 'month', 'name': r'^Claude Max 5x - Monthly$', 'offer': r'monthly'},
-    {'app': 'claude', 'id': 'max20-month', 'label': 'Claude Max 20x', 'period': 'month', 'name': r'^Claude Max 20x - Monthly$', 'offer': r'monthly'},
+    # Since 2026-11 the App Store sells "Claude Max" and "Claude Ultra" instead of Max 5x/20x.
+    # Ultra's usage limits differ from Max 20x, so both are new plans, not renames.
+    {'app': 'claude', 'id': 'max-month', 'label': 'Claude Max', 'period': 'month', 'name': r'^Claude Max - Monthly$', 'offer': r'monthly'},
+    {'app': 'claude', 'id': 'ultra-month', 'label': 'Claude Ultra', 'period': 'month', 'name': r'^Claude Ultra - Monthly$', 'offer': r'monthly'},
     {'app': 'gemini', 'id': 'plus-month', 'label': 'Google AI Plus', 'period': 'month', 'name': r'^Google AI Plus\b', 'offer': r'^com\.google\.gemini\.helium\.m(\.|$)'},
     {'app': 'gemini', 'id': 'pro-month', 'label': 'Google AI Pro', 'period': 'month', 'name': r'^Google AI Pro\b', 'offer': r'^com\.google\.gemini\.(2tb\.ai|ai\.2tb)\.m(\.|$)'},
     {'app': 'gemini', 'id': 'ultra-month', 'label': 'Google AI Ultra', 'period': 'month', 'name': r'^Google AI Ultra\b', 'offer': r'^com\.google\.gemini\.30tb\.ai\.pro\.m(\.|$)'},
@@ -217,8 +219,10 @@ def refresh(previous=None, channels=('ios', 'web'), apps=None, regions=None,
         failures.extend(errors)
         checked.update(scope)
     failed = {(f['app'], f['region'], f['channel']): f for f in failures}
+    plans = {(p['app'], p['id']) for p in PLANS}
     prices = []
-    for old in previous.get('prices', []):
+    # A retired plan's retained rows would point at a plan the snapshot no longer lists.
+    for old in (p for p in previous.get('prices', []) if (p['app'], p['plan']) in plans):
         row = {**old, 'channel': old.get('channel', 'ios'), 'tax': old.get('tax', 'unknown'),
                'observed_at': old.get('observed_at', previous.get('collected_at'))}
         key = (row['app'], row['region'], row['channel'])

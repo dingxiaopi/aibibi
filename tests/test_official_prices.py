@@ -1,6 +1,6 @@
 import json
 import unittest
-from collector.official_prices import APPS, PLANS, REGIONS, collect, match_plan, parse_add_ons, unmatched
+from collector.official_prices import APPS, PLANS, REGIONS, collect, match_plan, parse_add_ons, refresh, unmatched
 
 APP = APPS[0]
 US = REGIONS[0]
@@ -48,6 +48,22 @@ class OfficialPriceTests(unittest.TestCase):
         grok = [p for p in PLANS if p['app'] == 'grok']
         items = [{'name': n} for n in ('SuperGrok', 'Extra Usage Credits 5 USD', 'Grok Premium')]
         self.assertEqual(unmatched(grok, items), {'Grok Premium'})
+
+    def test_claude_max_and_ultra_are_their_own_plans(self):
+        claude = {p['id']: p for p in PLANS if p['app'] == 'claude'}
+        items = [{'name': n, 'display_price': '', 'price': v, 'offer': 'claude_monthly'}
+                 for n, v in (('Claude Max - Monthly', 124.99), ('Claude Ultra - Monthly', 249.99))]
+        self.assertEqual(match_plan(claude['max-month'], items)[1]['price'], 124.99)
+        self.assertEqual(match_plan(claude['ultra-month'], items)[1]['price'], 249.99)
+        self.assertEqual(unmatched(list(claude.values()), items), set())
+        self.assertNotIn('max20-month', claude)
+
+    def test_rows_of_retired_plans_are_not_retained(self):
+        row = {'app': 'claude', 'region': 'us', 'channel': 'web', 'status': 'ok', 'price': 1.0,
+               'currency': 'USD', 'observed_at': '2026-11-01T00:00:00+00:00'}
+        previous = {'prices': [{**row, 'plan': 'max20-month'}, {**row, 'plan': 'pro-month'}]}
+        result = refresh(previous, channels=(), fx={'rates': {'USD': 1.0, 'CNY': 7.0}})
+        self.assertEqual([r['plan'] for r in result['prices']], ['pro-month'])
 
     def test_failed_page_is_recorded_and_other_regions_continue(self):
         fx = {'rates': {'CNY': 7.0, 'USD': 1.0, **{r['currency']: 2.0 for r in REGIONS if r['currency'] != 'USD'}}}
