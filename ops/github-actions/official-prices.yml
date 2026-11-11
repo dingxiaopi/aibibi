@@ -1,4 +1,5 @@
-# Install in a PRIVATE state repository. Manual only; never deploys the website.
+# Install in a PRIVATE state repository. Never deploys site code; an accepted collection can
+# push its snapshot to the site's data when OFFICIAL_PUBLISH is 'true'.
 name: Official prices
 
 on:
@@ -18,6 +19,10 @@ on:
         description: Optional comma-separated region codes; probe defaults us,ph; collect defaults all 14
         type: string
         default: ''
+  # Optional daily schedule (UTC). Scheduled runs collect `supported` in all regions and
+  # run only when OFFICIAL_SCHEDULE is 'true'. Keep it clear of the shop collection times.
+  # schedule:
+  #   - cron: '7 3 * * *'
 
 permissions:
   contents: write
@@ -28,13 +33,13 @@ concurrency:
 
 jobs:
   official:
-    if: github.event.repository.private && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    if: github.event.repository.private && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && vars.OFFICIAL_SCHEDULE == 'true'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      SOURCE: ${{ inputs.source }}
-      MODE: ${{ inputs.mode }}
-      REGIONS: ${{ inputs.regions }}
+      SOURCE: ${{ inputs.source || 'supported' }}
+      MODE: ${{ inputs.mode || 'collect' }}
+      REGIONS: ${{ inputs.regions || '' }}
     steps:
       - name: Require a pinned reviewed code revision
         env:
@@ -78,8 +83,8 @@ jobs:
           include-hidden-files: true
           retention-days: 30
           if-no-files-found: warn
-      - name: Save accepted collection (no website publication)
-        if: success() && inputs.mode == 'collect'
+      - name: Save accepted collection
+        if: success() && env.MODE == 'collect'
         working-directory: state
         run: |
           mkdir -p official-prices
@@ -92,3 +97,10 @@ jobs:
             git commit -m "Save official prices (run $GITHUB_RUN_ID)"
             git -c http.version=HTTP/1.1 push origin HEAD:main
           fi
+      - name: Publish the saved snapshot to the site
+        if: success() && env.MODE == 'collect' && vars.OFFICIAL_PUBLISH == 'true'
+        working-directory: app
+        env:
+          BIJIA_URL: ${{ vars.COLLECTOR_URL }}
+          BIJIA_INGEST_TOKEN: ${{ secrets.BIJIA_INGEST_TOKEN }}
+        run: python3 -m collector.official_actions --mode publish --previous ../state/official-prices/snapshot.json

@@ -8,7 +8,8 @@ import type {
   ShopDetailResponse,
 } from "../../shared/api-types";
 import { escapeHtml, pageContent, safeJson } from "./content";
-import { officialMeta } from "../../shared/official-prices";
+import { official, officialMeta } from "../../shared/official-prices";
+import { loadOfficial } from "../official-data";
 import type { PublicContext } from "../services/public-data";
 export const publicPage = (path: string) =>
   path === "/" ||
@@ -67,12 +68,15 @@ export async function renderPage(request: Request, env: Env) {
   const [catalog, directory] = await Promise.all([
     readPublic<ProductsResponse>("/api/products", request, env, context),
     readPublic<ShopsResponse>("/api/shops", request, env, context),
+    loadOfficial(env),
   ]);
   if (!catalog || !directory) throw Error("Missing public catalog");
   const initial: Record<string, unknown> = {
     "/api/products": catalog,
     "/api/shops": directory,
   };
+  if (path === "/official" || path.startsWith("/official/"))
+    initial["/api/official"] = official;
   let missing = false,
     quotes: ShopDetailResponse["quotes"] = [];
   if (path.startsWith("/sku/")) {

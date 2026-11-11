@@ -1,4 +1,4 @@
-# 官方地区价格与手动更新
+# 官方地区价格与更新
 
 官方价页面先选应用和套餐，再在 App Store、官网含税、官网不含税三个渠道之间切换，
 每个渠道单独显示一张地区价格排行图，按人民币折算价从低到高排序。
@@ -40,7 +40,7 @@ python3 -m collector.official_prices --channels web --apps chatgpt --regions us,
 底层 CLI 允许保留失败来源，因此退出码不能单独证明本轮采集覆盖率。
 需要覆盖率检查时使用下面的 Actions 入口。
 
-## GitHub 手动采集
+## GitHub 采集
 
 将 [`ops/github-actions/official-prices.yml`](../ops/github-actions/official-prices.yml)
 复制到自己的**私有状态仓库** `.github/workflows/official-prices.yml`，放在默认 `main` 分支。
@@ -49,8 +49,8 @@ python3 -m collector.official_prices --channels web --apps chatgpt --regions us,
 - `APP_REPOSITORY`：公开代码仓库，如 `dingxiaopi/aibibi`。
 - `OFFICIAL_APP_REF`：已审核代码的完整 40 位提交 SHA。与店铺采集的 `APP_REF` 分开维护。
 
-该工作流不需要新密钥，不读取店铺密文或网站写入令牌。使用 GitHub 托管的 Ubuntu
-运行器，只有手动 `workflow_dispatch` 入口，并与店铺采集共用串行队列。
+采集本身不需要新密钥，不读取店铺密文。使用 GitHub 托管的 Ubuntu 运行器，
+与店铺采集共用串行队列。默认只有手动 `workflow_dispatch` 入口；定时与发布见下文，均需显式开启。
 公共仓库的 Quality CI 始终使用固定样本，不执行真实采集。
 
 在私有仓库 Actions → **Official prices** → **Run workflow** 中选择：
@@ -71,7 +71,26 @@ python3 -m collector.official_prices --channels web --apps chatgpt --regions us,
 
 ## 采集后如何展示到网站
 
-网站当前从 `cloudflare/shared/official-prices.json` 在构建时加载官方价。
-**GitHub 采集成功只更新私有数据，不会自动改变已部署网站。**
-审核采集报告后，将接受的快照复制到上述路径，运行类型检查、测试和构建，再按
-[部署流程](deployment.md)发布。工作流没有网站部署、D1 写入或定时任务。
+Worker 在运行时读取 D1 中最新推送的快照（迁移 `0012_official_snapshot.sql`），
+页面和 `/api/official` 都使用它；没有推送过时回退到构建时内置的
+`cloudflare/shared/official-prices.json`。更新官方价写入数据，不部署网站代码。
+
+推送接口 `PUT /api/collector/official` 使用店铺采集的同一个 `COLLECTOR_INGEST_TOKEN`，
+校验快照结构及应用、套餐、地区引用，拒绝早于线上版本的快照；同一份快照重复推送不产生写入。
+每个 Worker 实例最多每分钟检查一次版本，加上页面边缘缓存，新价格通常几分钟内可见。
+
+```sh
+# 手动推送已保存的快照
+BIJIA_URL=https://example.com BIJIA_INGEST_TOKEN=... \
+  python3 -m collector.official_actions --mode publish --previous official-prices/snapshot.json
+```
+
+在私有仓库中开启自动更新：
+
+- 变量 `OFFICIAL_PUBLISH=true`，并沿用店铺采集的 `COLLECTOR_URL` 变量和 `BIJIA_INGEST_TOKEN` 密钥。
+  通过门槛的 `collect` 先保存私有快照，再推送到网站；推送失败时任务标红，私有快照已保存。
+- 每日定时：取消工作流中 `schedule` 的注释，并设置变量 `OFFICIAL_SCHEDULE=true`。
+  定时运行固定为 `supported` / `collect` / 全部地区。GitHub 定时可能延迟数小时。
+
+ChatGPT 官网接口拒绝托管运行器（403），定时任务不包含它；已有 ChatGPT 官网记录保留原观察时间，
+超过七天后不再参与排行。

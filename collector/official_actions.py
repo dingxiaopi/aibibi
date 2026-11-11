@@ -1,4 +1,4 @@
-"""Manual official-price Actions entry point; no shop state or website publication."""
+"""Official-price Actions entry point; no shop state. An accepted collection can be pushed to the site."""
 import argparse
 from collections import Counter
 from datetime import datetime, timezone
@@ -6,6 +6,9 @@ import json
 import os
 from pathlib import Path
 import sys
+from urllib.error import HTTPError
+from urllib.parse import urlsplit
+from urllib.request import Request, urlopen
 
 from .official_prices import APPS, REGIONS, OUTPUT, fx_rates, refresh
 
@@ -57,6 +60,37 @@ def run(previous, source, regions, **kwargs):
     return result
 
 
+def publish(snapshot, target, token):
+    """Push one accepted snapshot; the Worker refuses one older than it already has."""
+    url = urlsplit(target)
+    if url.scheme != 'https' or not url.hostname or url.username or url.password or url.path not in ('', '/'):
+        raise ValueError('Publication target must be an https site origin')
+    if len(token) < 24:
+        raise ValueError('Missing collector credential')
+    request = Request(target.rstrip('/') + '/api/collector/official', method='PUT',
+                      data=json.dumps(snapshot, ensure_ascii=False).encode(),
+                      headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/json',
+                               'User-Agent': 'AI-Bijia-Research/1.0 (official price publication)'})
+    try:
+        with urlopen(request, timeout=60) as response:
+            return json.loads(response.read())
+    except HTTPError as error:
+        detail = error.read()[:300].decode('utf-8', 'replace')
+        raise RuntimeError(f'Publication failed: HTTP {error.code} {detail}') from None
+
+
+def publish_saved(path):
+    snapshot = json.loads(path.read_text())
+    result = publish(snapshot, os.environ.get('BIJIA_URL', ''), os.environ.get('BIJIA_INGEST_TOKEN', ''))
+    summary = (f"Official prices published: changed={result.get('changed')}, "
+               f"collected_at={result.get('collected_at')}\n")
+    print(summary)
+    if os.environ.get('GITHUB_STEP_SUMMARY'):
+        with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+            output.write('\n' + summary)
+    return 0
+
+
 def write_json(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     temp = path.with_suffix('.tmp')
@@ -67,11 +101,14 @@ def write_json(path, value):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', choices=['supported', 'ios', 'gemini', 'chatgpt'], default='supported')
-    parser.add_argument('--mode', choices=['probe', 'collect'], default='probe')
+    parser.add_argument('--mode', choices=['probe', 'collect', 'publish'], default='probe',
+                        help='publish pushes the saved --previous snapshot to BIJIA_URL')
     parser.add_argument('--regions', default='', help='Comma-separated allowlisted codes; probe defaults us,ph; collect defaults all')
     parser.add_argument('--previous', type=Path, default=OUTPUT)
     parser.add_argument('--output-dir', type=Path, default=Path('.local/official-prices'))
     args = parser.parse_args()
+    if args.mode == 'publish':
+        return publish_saved(args.previous)
     codes = set(args.regions.split(',')) if args.regions.strip() else ({'us', 'ph'} if args.mode == 'probe' else {r['code'] for r in REGIONS})
     if codes - {r['code'] for r in REGIONS}:
         parser.error('Unknown region code')
@@ -93,7 +130,7 @@ def main():
     summary += f"Accepted: {report['accepted']}; fresh source groups: {report.get('successful_sources', 0)}/{len(scope)}.\n\n"
     for group in report.get('groups', []):
         summary += f"- {group['app']} / {group['channel']}: {group['successful_regions']}/{group['requested_regions']} regions\n"
-    summary += '\nProbe never saves the durable snapshot. Collection requires at least 80% fresh successful regions for every selected app/channel. Website publication is separate.\n'
+    summary += '\nProbe never saves the durable snapshot. Collection requires at least 80% fresh successful regions for every selected app/channel. Publish mode pushes the saved snapshot to the site.\n'
     if report.get('error'):
         summary += '\nError: ' + report['error'] + '\n'
     print(summary)

@@ -1,9 +1,12 @@
 import copy
+import io
+import json
 from datetime import datetime, timedelta, timezone
 import unittest
 from unittest.mock import patch
+from urllib.error import HTTPError
 
-from collector.official_actions import assess, run, scope_for
+from collector.official_actions import assess, publish, run, scope_for
 from collector.official_prices import REGIONS
 
 
@@ -48,6 +51,26 @@ class OfficialActionsTests(unittest.TestCase):
         self.assertEqual(refresh.call_args_list[0].kwargs['channels'], ('ios',))
         self.assertEqual([a['id'] for a in refresh.call_args_list[1].kwargs['apps']], ['gemini'])
         self.assertEqual(refresh.call_args_list[1].args[0], {'first': True})
+
+    def test_publish_sends_the_snapshot_to_the_collector_endpoint_only(self):
+        token = 't' * 32
+        for target in ['http://site.test', 'https://user@site.test', 'https://site.test/api', '']:
+            with self.subTest(target=target), self.assertRaises(ValueError):
+                publish({}, target, token)
+        with self.assertRaises(ValueError):
+            publish({}, 'https://site.test', 'short')
+        response = io.BytesIO(b'{"ok": true, "changed": true}')
+        with patch('collector.official_actions.urlopen', return_value=response) as urlopen:
+            self.assertEqual(publish({'collected_at': '2026-11-11'}, 'https://site.test/', token),
+                             {'ok': True, 'changed': True})
+        request = urlopen.call_args.args[0]
+        self.assertEqual((request.full_url, request.get_method()), ('https://site.test/api/collector/official', 'PUT'))
+        self.assertEqual(request.get_header('Authorization'), f'Bearer {token}')
+        self.assertEqual(json.loads(request.data), {'collected_at': '2026-11-11'})
+        refused = HTTPError('https://site.test', 409, 'Conflict', {}, io.BytesIO('快照早于线上版本'.encode()))
+        with patch('collector.official_actions.urlopen', side_effect=refused), \
+                self.assertRaisesRegex(RuntimeError, '409 快照早于线上版本'):
+            publish({}, 'https://site.test', token)
 
 
 if __name__ == '__main__':

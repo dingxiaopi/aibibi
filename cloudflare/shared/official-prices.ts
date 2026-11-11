@@ -1,4 +1,3 @@
-import data from "./official-prices.json";
 import { SITE_NAME } from "./site";
 
 export type OfficialChannel = "ios" | "web";
@@ -48,6 +47,7 @@ export type OfficialApp = {
   app_store_id: string;
 };
 export type OfficialData = {
+  schema_version?: number;
   collected_at: string;
   source: string;
   fx: { source: string; updated_at: string; rates: Record<string, number> };
@@ -64,7 +64,80 @@ export type OfficialData = {
   }[];
 };
 
-export const official = data as OfficialData;
+/**
+ * The snapshot in use. The Worker loads the latest pushed one (bundled
+ * `official-prices.json` as fallback) and the browser fetches /api/official;
+ * both call setOfficial before anything below reads it.
+ */
+export let official: OfficialData = {
+  collected_at: "",
+  source: "",
+  fx: { source: "", updated_at: "", rates: {} },
+  apps: [],
+  plans: [],
+  regions: [],
+  prices: [],
+  failures: [],
+};
+export function setOfficial(data: OfficialData) {
+  official = data;
+}
+const STATUSES = new Set(["ok", "missing", "review"]);
+const isText = (value: unknown) => typeof value === "string" && value !== "";
+const isList = (value: unknown): value is Record<string, unknown>[] =>
+  Array.isArray(value) &&
+  value.every((v) => v !== null && typeof v === "object");
+/** Shape check for a pushed snapshot; references must point at listed apps, plans and regions. */
+export function validOfficial(value: unknown): value is OfficialData {
+  if (!value || typeof value !== "object") return false;
+  const d = value as Record<string, unknown>;
+  const fx = d.fx as Record<string, unknown> | undefined;
+  const rates = fx?.rates as Record<string, unknown> | undefined;
+  if (
+    d.schema_version !== 2 ||
+    !isText(d.collected_at) ||
+    !Number.isFinite(Date.parse(d.collected_at as string)) ||
+    !rates ||
+    typeof rates !== "object" ||
+    !(Number(rates.CNY) > 0) ||
+    !Object.values(rates).every((r) => typeof r === "number" && r > 0) ||
+    ![d.apps, d.plans, d.regions, d.prices].every(
+      (list) => isList(list) && list.length > 0,
+    ) ||
+    !isList(d.failures)
+  )
+    return false;
+  const apps = new Set((d.apps as { id: unknown }[]).map((a) => a.id));
+  const regions = new Set((d.regions as { code: unknown }[]).map((r) => r.code));
+  const plans = new Set(
+    (d.plans as { app: unknown; id: unknown }[]).map((p) => `${p.app}/${p.id}`),
+  );
+  return (
+    (d.apps as Record<string, unknown>[]).every(
+      (a) => isText(a.id) && isText(a.name),
+    ) &&
+    (d.plans as Record<string, unknown>[]).every(
+      (p) =>
+        apps.has(p.app) &&
+        isText(p.id) &&
+        isText(p.label) &&
+        (p.period === "month" || p.period === "year"),
+    ) &&
+    (d.regions as Record<string, unknown>[]).every(
+      (r) => isText(r.code) && isText(r.name),
+    ) &&
+    (d.prices as Record<string, unknown>[]).every(
+      (p) =>
+        plans.has(`${p.app}/${p.plan}`) &&
+        regions.has(p.region) &&
+        STATUSES.has(p.status as string) &&
+        typeof p.source_url === "string" &&
+        /^https:\/\//.test(p.source_url) &&
+        (p.status !== "ok" ||
+          (typeof p.price === "number" && Number.isFinite(p.price))),
+    )
+  );
+}
 export const priceChannel = (row: OfficialPrice) => row.channel || "ios";
 export const priceTax = (row: OfficialPrice) => row.tax || "unknown";
 /** Return only an explicitly published amount; never reverse-calculate a tax. */

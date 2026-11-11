@@ -21,6 +21,9 @@ import {
   type ChartPriceRow,
 } from "../../shared/official-prices";
 import { date } from "../lib/catalog-format";
+import { useOfficial } from "../lib/official";
+import { PageSkeleton } from "@/components/page-loading";
+import { RequestError } from "../components/request-error";
 import { updatePageMeta } from "../lib/page-meta";
 import "./official.css";
 
@@ -36,10 +39,16 @@ function Source() {
 export function OfficialPage({ app }: { app?: string }) {
   const path = app ? `/official/${app}` : "/official";
   const activeApp = app || "chatgpt";
-  React.useEffect(
-    () => updatePageMeta(path, null, [], officialMeta(path)),
-    [path],
-  );
+  const { data, error, retry } = useOfficial();
+  React.useEffect(() => {
+    if (data) updatePageMeta(path, null, [], officialMeta(path));
+  }, [path, data]);
+  if (!data)
+    return error ? (
+      <RequestError message={error} retry={retry} />
+    ) : (
+      <PageSkeleton variant="table" label="正在读取官方价格…" />
+    );
   if (app && !officialApp(app))
     return (
       <div className="py-20 text-center text-muted-foreground">

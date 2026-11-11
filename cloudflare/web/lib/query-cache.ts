@@ -15,7 +15,7 @@ type Entry = {
 export const QUERY_TTL = 30_000;
 const entries = new Map<string, Entry>();
 export const publicQuery = (path: string) =>
-  /^\/api\/(products(?:[/?]|$)|shops(?:[/?]|$)|history\/)/.test(path);
+  /^\/api\/(products(?:[/?]|$)|shops(?:[/?]|$)|history\/|official$)/.test(path);
 export function queryEntry(path: string) {
   let entry = entries.get(path);
   if (!entry) {
