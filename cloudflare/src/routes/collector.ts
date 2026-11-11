@@ -30,6 +30,11 @@ export async function collectorRoutes(request: Request, env: Env, url: URL) {
       return await transferState(env, url.searchParams.get("id") || "");
     return json({ error: "方法不支持" }, 405);
   }
+  if (url.pathname === "/api/collector/official") {
+    if (request.method !== "PUT") return json({ error: "方法不支持" }, 405);
+    const { ingestOfficial } = await import("../official-data");
+    return await ingestOfficial(request, env);
+  }
   if (url.pathname === "/api/ingest" && request.method === "POST") {
     const { ingestTracked } = await import("../transfers");
     return await ingestTracked(request, env);

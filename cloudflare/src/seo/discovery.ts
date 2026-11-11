@@ -1,6 +1,7 @@
 import { shopIndexable } from "../../shared/shop-visibility";
 import { siteOrigin, DEMO_MODE } from "../../shared/site";
 import { official } from "../../shared/official-prices";
+import { loadOfficial } from "../official-data";
 import type { ProductsResponse, ShopsResponse } from "../../shared/api-types";
 import { readPublic } from "./pages";
 import { escapeHtml, latestDate } from "./content";
@@ -31,6 +32,7 @@ export async function discovery(request: Request, env: Env) {
   const [catalog, directory] = await Promise.all([
     readPublic<ProductsResponse>("/api/products", request, env, context),
     readPublic<ShopsResponse>("/api/shops", request, env, context),
+    loadOfficial(env),
   ]);
   if (!catalog || !directory) throw Error("Missing sitemap catalog");
   const checks = (await context.catalog!).quotes;

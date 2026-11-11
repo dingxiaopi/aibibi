@@ -1,8 +1,9 @@
 import { Link } from "@/components/link";
 import { cny, officialFor, regionName } from "../../shared/official-prices";
+import { useOfficial } from "../lib/official";
 import "./official-compare.css";
 
-/** App Store prices of the same plan, next to the cheapest shop price. Lazy: carries the official data. */
+/** App Store prices of the same plan, next to the cheapest shop price. Lazy: reads the official snapshot. */
 export default function OfficialCompare({
   sku,
   minimum,
@@ -10,7 +11,8 @@ export default function OfficialCompare({
   sku: string;
   minimum: number | null;
 }) {
-  const ref = officialFor(sku);
+  const { data } = useOfficial();
+  const ref = data ? officialFor(sku) : null;
   if (!ref) return null;
   const { app, plan, us, cheapest, regions } = ref;
   const unit = plan.period === "year" ? "/年" : "/月";

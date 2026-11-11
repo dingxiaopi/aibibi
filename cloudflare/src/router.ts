@@ -36,6 +36,11 @@ const routes: Route[] = [
     pattern: /^\/api\/collector\/transfers$/,
     handler: collectorRoutes,
   },
+  {
+    method: "*",
+    pattern: /^\/api\/collector\/official$/,
+    handler: collectorRoutes,
+  },
   { method: "POST", pattern: /^\/api\/ingest$/, handler: collectorRoutes },
   { method: "*", pattern: /^\/api\//, handler: applicationApi },
 ];

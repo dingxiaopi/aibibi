@@ -92,7 +92,7 @@ npm run build
 - [实例配置](public-docs/configuration.md)
 - [部署与演示](public-docs/deployment.md)
 - [采集与适配器贡献](public-docs/collectors.md)
-- [官方地区价、税费与手动采集](public-docs/official-prices.md)
+- [官方地区价、税费与自动更新](public-docs/official-prices.md)
 - [GitHub Actions 采集](public-docs/github-actions.md)
 - [常见问题与反馈](public-docs/troubleshooting.md)
 - [版本发布流程](public-docs/release.md)

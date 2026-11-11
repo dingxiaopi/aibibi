@@ -194,5 +194,6 @@ VPS profile 使用节点本地的 npm 缓存，不再上传/下载 GitHub Action
 
 ## 官方地区价
 
-App Store 与官网地区价使用独立的 [Official prices 手动工作流](official-prices.md)，
-不读取店铺状态、不自动发布网站；普通店铺采集的配置和范围保持独立。
+App Store 与官网地区价使用独立的 [Official prices 工作流](official-prices.md)，
+不读取店铺状态、不部署网站代码；可选每日定时，并把通过门槛的快照推送到网站数据。
+普通店铺采集的配置和范围保持独立。

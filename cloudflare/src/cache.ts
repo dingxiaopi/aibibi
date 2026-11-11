@@ -18,7 +18,7 @@ type Entry = {
 // Bytes, not Response objects: a body stream cannot be read from another request.
 const memory = new Map<string, Entry>();
 
-const PUBLIC_API = /^\/api\/(products|shops|history)(\/[A-Za-z0-9_-]+)?$/;
+const PUBLIC_API = /^\/api\/(products|shops|history|official)(\/[A-Za-z0-9_-]+)?$/;
 const TRACKING = /^(utm_.+|gclid|dclid|fbclid|msclkid|mc_cid|mc_eid|_ga)$/i;
 const EXPIRES_HEADER = "X-Public-Cache-Expires";
 

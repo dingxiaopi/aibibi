@@ -95,6 +95,10 @@ export async function publicRoutes(
     return publicSponsors(request, env, url);
   }
   if (request.method !== "GET") return json({ error: "方法不支持" }, 405);
+  if (path === "/api/official") {
+    const { publicOfficial } = await import("../official-data");
+    return publicOfficial(env);
+  }
   if (path === "/api/products")
     return json(await products(env, url, config.freshness_hours, context));
   if (path === "/api/shops") {

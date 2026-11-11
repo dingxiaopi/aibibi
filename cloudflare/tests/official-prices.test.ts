@@ -12,9 +12,38 @@ import {
   amountCny,
   sortedRegions,
   sortPrice,
+  setOfficial,
+  validOfficial,
+  type OfficialData,
   type OfficialPrice,
 } from "../shared/official-prices";
+import bundled from "../shared/official-prices.json";
 import { officialContent } from "../src/seo/official";
+
+setOfficial(bundled as OfficialData);
+
+test("the bundled snapshot passes push validation; broken references and amounts do not", () => {
+  assert.ok(validOfficial(bundled));
+  const copy = () => structuredClone(bundled) as OfficialData;
+  const broken = [
+    (d: OfficialData) => (d.schema_version = 1),
+    (d: OfficialData) => (d.collected_at = "yesterday"),
+    (d: OfficialData) => (d.fx.rates.CNY = 0),
+    (d: OfficialData) => (d.prices = []),
+    (d: OfficialData) => (d.prices[0].region = "zz"),
+    (d: OfficialData) => (d.prices[0].plan = "unknown"),
+    (d: OfficialData) => (d.prices[0].source_url = "http://example.test"),
+    (d: OfficialData) => {
+      const row = d.prices.find((p) => p.status === "ok")!;
+      delete row.price;
+    },
+  ];
+  for (const change of broken) {
+    const data = copy();
+    change(data);
+    assert.equal(validOfficial(data), false, change.toString());
+  }
+});
 
 test("every SKU with an official equivalent exists in the catalog", () => {
   const products = JSON.parse(
