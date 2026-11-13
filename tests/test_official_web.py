@@ -79,6 +79,17 @@ class OfficialWebTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             discover_google_feed(lambda u: ('https://evil.example/', 'pricing_2030_01_01.json'))
 
+    def test_google_feed_prefers_public_default_over_preview_flag(self):
+        asset = ('var e={EnablePriceChange1116:`pricing_2030_11_16.json`};'
+                 'function s(e){let n=c()||`pricing_2030_07_28.json`;return n}')
+        def fetch(url):
+            if url == GOOGLE_PAGE:
+                return url, '<script src="/about/assets/d/flag.js"></script><script src="/about/assets/d/new.js"></script>'
+            if url.endswith('flag.js'):
+                return url, 'var e={EnablePriceChange1201:`pricing_2030_12_01.json`};'
+            return url, asset
+        self.assertEqual(discover_google_feed(fetch), 'pricing_2030_07_28.json')
+
     def test_failure_preserves_true_observation_and_unselected_channel(self):
         old = {'app': 'chatgpt', 'plan': 'plus-month', 'region': 'ph', 'channel': 'web',
                'status': 'ok', 'source_url': OPENAI_URL + 'PH', 'price': 1100, 'currency': 'PHP',

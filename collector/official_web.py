@@ -72,7 +72,10 @@ def discover_google_feed(fetch_page):
     if not final.startswith(GOOGLE_ORIGIN + '/'):
         raise ValueError('Google 价格页跳转到其他来源')
     pattern = r'pricing_\d{4}_\d{2}_\d{2}\.json'
-    versions = re.findall(pattern, html)
+    # Preview-only feature flags name unpublished feeds; the public default follows `||`.
+    default = r'\|\|\s*[`"\x27](' + pattern + r')[`"\x27]'
+    versions = re.findall(default, html)
+    mentioned = re.findall(pattern, html)
     if not versions:
         scripts = list(dict.fromkeys(re.findall(r'<script[^>]+src=["\x27]([^"\x27]+)', html)))
         for script in scripts[:24]:
@@ -82,9 +85,11 @@ def discover_google_feed(fetch_page):
             asset_url, body = fetch_page(url)
             if not asset_url.startswith(GOOGLE_ORIGIN + '/about/assets/'):
                 raise ValueError('Google 脚本跳转到其他来源')
-            versions.extend(re.findall(pattern, body))
+            versions = re.findall(default, body)
             if versions:
                 break
+            mentioned.extend(re.findall(pattern, body))
+    versions = versions or mentioned
     if not versions:
         raise ValueError('当前 Google 官方页未发现价格 JSON 版本；保留旧数据，不猜测日期')
     return max(versions)
